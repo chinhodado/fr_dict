@@ -94,7 +94,7 @@ public class MyDialog extends Activity {
                                         }
                                     }
                                     else {
-                                        if (!elem.tagName().equals("h2") && !frenchEndReached) {
+                                        if (!elem.tagName().equals("h2") && !(elem.tagName().equals("h3") && elem.text().equals("External links")) && !frenchEndReached) {
                                             frenchCollection.add(elem);
                                         }
                                         else {
