@@ -51,6 +51,7 @@ public class MyDialog extends Activity {
                 final String str = edt.getText().toString();
                 if (str.length() > 0) {
                     new AsyncTask<Void, Void, String>(){
+                        boolean exceptionOccurred = false;
                         @Override
                         protected String doInBackground(Void... params) {
                             String html = null;
@@ -58,6 +59,8 @@ public class MyDialog extends Activity {
                                 html = Jsoup.connect("http://en.wiktionary.org/w/index.php?title=" + str + "&printable=yes")
                                         .ignoreContentType(true).execute().body();
                             } catch (IOException e) {
+                                html = "Error getting word from Wiktionary. Probably 404-ed";
+                                exceptionOccurred = true;
                                 e.printStackTrace();
                             }
                             return html;
@@ -66,6 +69,11 @@ public class MyDialog extends Activity {
                         @Override
                         protected void onPostExecute(String html) {
                             try {
+                                if (exceptionOccurred) {
+                                    webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
+                                    return;
+                                }
+
                                 Document doc = Jsoup.parse(html);
                                 Element content = doc.select("#mw-content-text").first();
                                 content.select("script").remove();               // remove <script> tags
@@ -97,7 +105,12 @@ public class MyDialog extends Activity {
                                 }
 
                                 //webView.getSettings().setJavaScriptEnabled(true);
-                                webView.loadDataWithBaseURL("http://en.wiktionary.org/w/", frenchCollection.toString(), "text/html", "UTF-8", "");
+                                if (frenchFound) {
+                                    webView.loadDataWithBaseURL("http://en.wiktionary.org/w/", frenchCollection.toString(), "text/html", "UTF-8", "");
+                                }
+                                else {
+                                    webView.loadDataWithBaseURL("", "Not a French word.", "text/html", "UTF-8", "");
+                                }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
