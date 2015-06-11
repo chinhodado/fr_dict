@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -54,13 +53,7 @@ public class ChatHeadService extends Service {
         chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
         chatheadImg = (ImageView) chatheadView.findViewById(R.id.chathead_img);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            windowManager.getDefaultDisplay().getSize(szWindow);
-        } else {
-            int w = windowManager.getDefaultDisplay().getWidth();
-            int h = windowManager.getDefaultDisplay().getHeight();
-            szWindow.set(w, h);
-        }
+        windowManager.getDefaultDisplay().getSize(szWindow);
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
@@ -241,13 +234,7 @@ public class ChatHeadService extends Service {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            windowManager.getDefaultDisplay().getSize(szWindow);
-        } else {
-            int w = windowManager.getDefaultDisplay().getWidth();
-            int h = windowManager.getDefaultDisplay().getHeight();
-            szWindow.set(w, h);
-        }
+        windowManager.getDefaultDisplay().getSize(szWindow);
 
         WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) chatheadView.getLayoutParams();
 
@@ -348,7 +335,7 @@ public class ChatHeadService extends Service {
     private void chathead_click() {
         Log.i(Utility.LogTag, "chathead_click()");
         if (MyDialog.active) {
-            MyDialog.myDialog.finish();
+            MyDialog.myDialog.moveTaskToBack(true);
         } else {
             Intent it = new Intent(this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(it);

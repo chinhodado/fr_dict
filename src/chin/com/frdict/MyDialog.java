@@ -11,14 +11,15 @@ import org.jsoup.select.Elements;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
 public class MyDialog extends Activity {
     public static boolean active = false;
@@ -34,7 +35,13 @@ public class MyDialog extends Activity {
         final EditText edt = (EditText) findViewById(R.id.dialog_edt);
         Button btn = (Button) findViewById(R.id.dialog_btn);
         View top = (View) findViewById(R.id.dialog_top);
-        final TextView textView = (TextView) findViewById(R.id.textView1);
+        final WebView webView = (WebView) findViewById(R.id.webView1);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(myDialog, description, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         myDialog = MyDialog.this;
 
@@ -90,7 +97,8 @@ public class MyDialog extends Activity {
                                     }
                                 }
 
-                                textView.setText(Html.fromHtml(frenchCollection.toString()));
+                                //webView.getSettings().setJavaScriptEnabled(true);
+                                webView.loadDataWithBaseURL("http://en.wiktionary.org/w/", frenchCollection.toString(), "text/html", "UTF-8", "");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
