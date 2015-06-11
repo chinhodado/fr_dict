@@ -80,7 +80,6 @@ public class MyDialog extends Activity {
                                     if (!frenchFound) {
                                         if (elem.tagName().equals("h2") && elem.text().equals("French")) {
                                             frenchFound = true;
-                                            frenchCollection.add(elem);
                                         }
                                         else {
                                             elem.remove();
