@@ -111,7 +111,7 @@ public class MyDialog extends Activity {
         top.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                moveTaskToBack(true);
             }
         });
     }
