@@ -17,33 +17,27 @@
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="9.87"
-        android:background="#FFFFFF" >
+        android:layout_weight="8"
+        android:background="#FFFFFF"
+        android:fillViewport="true" >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="1144dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <EditText
                 android:id="@+id/dialog_edt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:gravity="top|left"
-                android:hint="enter text"
-                android:textSize="15sp" >
-
-                <requestFocus />
+                android:inputType="text">
             </EditText>
 
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3.76"
-                android:textColor="#000000"
-                android:text=""/>
+                android:layout_height="wrap_content"
+                android:textColor="#000000" />
 
         </LinearLayout>
     </ScrollView>
