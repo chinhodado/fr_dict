@@ -31,14 +31,13 @@ public class ChatHeadService extends Service {
         Log.d(Utility.LogTag, "ChatHeadService.onCreate()");
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
         WindowManager.LayoutParams paramRemove = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-        paramRemove.gravity = Gravity.TOP | Gravity.LEFT;
+        paramRemove.gravity = Gravity.TOP | Gravity.START;
 
         removeView.setVisibility(View.GONE);
         removeImg = (ImageView) removeView.findViewById(R.id.remove_img);
@@ -51,7 +50,7 @@ public class ChatHeadService extends Service {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
                         | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.gravity = Gravity.TOP | Gravity.START;
         params.x = 0;
         params.y = 100;
         windowManager.addView(chatheadView, params);
@@ -131,7 +130,8 @@ public class ChatHeadService extends Service {
 
                             windowManager.updateViewLayout(chatheadView, layoutParams);
                             break;
-                        } else {
+                        }
+                        else {
                             inBounded = false;
                             removeImg.getLayoutParams().height = remove_img_height;
                             removeImg.getLayoutParams().width = remove_img_width;
@@ -145,7 +145,6 @@ public class ChatHeadService extends Service {
 
                             windowManager.updateViewLayout(removeView, param_remove);
                         }
-
                     }
 
                     layoutParams.x = x_cord_Destination;
@@ -209,7 +208,7 @@ public class ChatHeadService extends Service {
         WindowManager.LayoutParams paramsTxt = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
                         | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-        paramsTxt.gravity = Gravity.TOP | Gravity.LEFT;
+        paramsTxt.gravity = Gravity.TOP | Gravity.START;
     }
 
     @Override

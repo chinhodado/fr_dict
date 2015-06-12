@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <issue id="ContentDescription">
+    <issue id="ContentDescription" severity="ignore">
         <ignore path="res/layout/chathead.xml" />
     </issue>
     <issue id="HardcodedText">
