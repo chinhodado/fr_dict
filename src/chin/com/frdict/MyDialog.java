@@ -74,16 +74,23 @@ public class MyDialog extends Activity {
                                     return;
                                 }
 
+                                // parse and do some initial cleaning of the DOM
                                 Document doc = Jsoup.parse(html);
                                 Element content = doc.select("#mw-content-text").first();
                                 content.select("script").remove();               // remove <script> tags
                                 content.select("noscript").remove();             // remove <noscript> tags
                                 content.select("#toc").remove();                 // remove the table of content
                                 removeComments(content);                         // remove comments
+
+                                // parse for the content of the French section, if it exist
                                 Elements children = content.children();
                                 boolean frenchFound = false;
                                 boolean frenchEndReached = false;
+                                boolean isCurrentlyEtymology = false;
+                                boolean isCurrentlyPronunciation = false;
                                 Elements frenchCollection = new Elements();
+                                Elements etymologyCollection = new Elements();
+                                Elements pronunciationCollection = new Elements();
                                 for (Element elem : children) {
                                     if (!frenchFound) {
                                         if (elem.tagName().equals("h2") && elem.text().equals("French")) {
@@ -95,7 +102,37 @@ public class MyDialog extends Activity {
                                     }
                                     else {
                                         if (!elem.tagName().equals("h2") && !(elem.tagName().equals("h3") && elem.text().equals("External links")) && !frenchEndReached) {
-                                            frenchCollection.add(elem);
+                                            // get etylmology and pronunciation sections so that we can move them to the back
+                                            // of the page later, instead of having them at the beginning of the page
+                                            if (elem.tagName().equals("h3") && elem.text().equals("Etymology")) {
+                                                isCurrentlyEtymology = true;
+                                                isCurrentlyPronunciation = false;
+                                                etymologyCollection.add(elem);
+                                            }
+                                            else if (elem.tagName().equals("h3") && elem.text().equals("Pronunciation")) {
+                                                isCurrentlyPronunciation = true;
+                                                isCurrentlyEtymology = false;
+                                                pronunciationCollection.add(elem);
+                                            }
+                                            else if (elem.tagName().equals("h3")) {
+                                                // something other than etymology and pronunciation
+                                                isCurrentlyEtymology = false;
+                                                isCurrentlyPronunciation = false;
+                                                frenchCollection.add(elem);
+                                            }
+                                            else if (isCurrentlyEtymology) {
+                                                isCurrentlyPronunciation = false;
+                                                etymologyCollection.add(elem);
+                                            }
+                                            else if (isCurrentlyPronunciation) {
+                                                isCurrentlyEtymology = false;
+                                                pronunciationCollection.add(elem);
+                                            }
+                                            else {
+                                                isCurrentlyPronunciation = false;
+                                                isCurrentlyEtymology = false;
+                                                frenchCollection.add(elem);
+                                            }
                                         }
                                         else {
                                             frenchEndReached = true;
@@ -103,6 +140,10 @@ public class MyDialog extends Activity {
                                         }
                                     }
                                 }
+
+                                // put pronunciation and etymology sections to the back
+                                frenchCollection.addAll(pronunciationCollection);
+                                frenchCollection.addAll(etymologyCollection);
 
                                 //webView.getSettings().setJavaScriptEnabled(true);
                                 if (frenchFound) {
