@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,7 +26,7 @@ public class ChatHeadService extends Service {
     private ImageView chatheadImg, removeImg;
     private TextView txt1;
 
-    private int x_init_cord, y_init_cord, x_init_margin, y_init_margin, iLife = 0;
+    private int x_init_cord, y_init_cord, x_init_margin, y_init_margin;
     private Point szWindow = new Point();
     private boolean isLeft = true;
 
@@ -398,28 +397,10 @@ public class ChatHeadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(Utility.LogTag, "ChatHeadService.onStartCommand() -> iLife=" + iLife);
-
-        Bundle bd = intent.getExtras();
-        if (bd != null) {
-            final String sMsg = bd.getString(Utility.EXTRA_MSG);
-            Log.d(Utility.LogTag, "ChatHeadService.onStartCommand() -> EXTRA_MSG=" + sMsg);
-
-            if (iLife > 0)
-                showMsg(sMsg);
-            else {
-                new Handler().postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        showMsg(sMsg);
-                    }
-                }, 300);
-            }
-        }
-
-        iLife++;
-        return super.onStartCommand(intent, flags, startId);
+        Log.d(Utility.LogTag, "ChatHeadService.onStartCommand()");
+        // We want this service to continue running until it is explicitly
+        // stopped, so return sticky.
+        return START_STICKY;
     }
 
     @Override
