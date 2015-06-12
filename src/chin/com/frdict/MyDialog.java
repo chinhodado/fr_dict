@@ -85,4 +85,9 @@ public class MyDialog extends Activity {
         Log.i(Utility.LogTag, "MyDialog onDestroy()");
         active = false;
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 }
