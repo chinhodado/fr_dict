@@ -15,20 +15,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 public class ChatHeadService extends Service {
     private WindowManager windowManager;
     private RelativeLayout chatheadView, removeView;
-    private LinearLayout txtView, txt_linearlayout;
-    private ImageView chatheadImg, removeImg;
-    private TextView txt1;
+    private ImageView removeImg;
 
     private int x_init_cord, y_init_cord, x_init_margin, y_init_margin;
     private Point szWindow = new Point();
-    private boolean isLeft = true;
 
     @Override
     public void onCreate() {
@@ -50,7 +45,6 @@ public class ChatHeadService extends Service {
         windowManager.addView(removeView, paramRemove);
 
         chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
-        chatheadImg = (ImageView) chatheadView.findViewById(R.id.chathead_img);
 
         windowManager.getDefaultDisplay().getSize(szWindow);
 
@@ -102,10 +96,6 @@ public class ChatHeadService extends Service {
                     x_init_margin = layoutParams.x;
                     y_init_margin = layoutParams.y;
 
-                    if (txtView != null) {
-                        txtView.setVisibility(View.GONE);
-                        myHandler.removeCallbacks(myRunnable);
-                    }
                     break;
                 case MotionEvent.ACTION_MOVE:
                     int x_diff_move = x_cord - x_init_cord;
@@ -216,17 +206,10 @@ public class ChatHeadService extends Service {
             }
         });
 
-        txtView = (LinearLayout) inflater.inflate(R.layout.txt, null);
-        txt1 = (TextView) txtView.findViewById(R.id.txt1);
-        txt_linearlayout = (LinearLayout) txtView.findViewById(R.id.txt_linearlayout);
-
         WindowManager.LayoutParams paramsTxt = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
                         | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
         paramsTxt.gravity = Gravity.TOP | Gravity.LEFT;
-
-        txtView.setVisibility(View.GONE);
-        windowManager.addView(txtView, paramsTxt);
     }
 
     @Override
@@ -240,10 +223,6 @@ public class ChatHeadService extends Service {
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> landscap");
 
-            if (txtView != null) {
-                txtView.setVisibility(View.GONE);
-            }
-
             if (layoutParams.y + (chatheadView.getHeight() + getStatusBarHeight()) > szWindow.y) {
                 layoutParams.y = szWindow.y - (chatheadView.getHeight() + getStatusBarHeight());
                 windowManager.updateViewLayout(chatheadView, layoutParams);
@@ -255,10 +234,6 @@ public class ChatHeadService extends Service {
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> portrait");
-
-            if (txtView != null) {
-                txtView.setVisibility(View.GONE);
-            }
 
             if (layoutParams.x > szWindow.x) {
                 resetPosition(szWindow.x);
@@ -272,11 +247,9 @@ public class ChatHeadService extends Service {
         if (x_cord_now == 0 || x_cord_now == szWindow.x - w) {
 
         } else if (x_cord_now + w / 2 <= szWindow.x / 2) {
-            isLeft = true;
             moveToLeft(x_cord_now);
 
         } else if (x_cord_now + w / 2 > szWindow.x / 2) {
-            isLeft = false;
             moveToRight(x_cord_now);
         }
     }
@@ -354,47 +327,6 @@ public class ChatHeadService extends Service {
         windowManager.updateViewLayout(removeView, param_remove);
     }
 
-    private void showMsg(String sMsg) {
-        if (txtView != null && chatheadView != null) {
-            Log.d(Utility.LogTag, "ChatHeadService.showMsg -> sMsg=" + sMsg);
-            txt1.setText(sMsg);
-            myHandler.removeCallbacks(myRunnable);
-
-            WindowManager.LayoutParams param_chathead = (WindowManager.LayoutParams) chatheadView.getLayoutParams();
-            WindowManager.LayoutParams param_txt = (WindowManager.LayoutParams) txtView.getLayoutParams();
-
-            txt_linearlayout.getLayoutParams().height = chatheadView.getHeight();
-            txt_linearlayout.getLayoutParams().width = szWindow.x / 2;
-
-            if (isLeft) {
-                param_txt.x = param_chathead.x + chatheadImg.getWidth();
-                param_txt.y = param_chathead.y;
-
-                txt_linearlayout.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
-            } else {
-                param_txt.x = param_chathead.x - szWindow.x / 2;
-                param_txt.y = param_chathead.y;
-
-                txt_linearlayout.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-            }
-
-            txtView.setVisibility(View.VISIBLE);
-            windowManager.updateViewLayout(txtView, param_txt);
-
-            myHandler.postDelayed(myRunnable, 4000);
-        }
-    }
-
-    Handler myHandler = new Handler();
-    Runnable myRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (txtView != null) {
-                txtView.setVisibility(View.GONE);
-            }
-        }
-    };
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(Utility.LogTag, "ChatHeadService.onStartCommand()");
@@ -409,10 +341,6 @@ public class ChatHeadService extends Service {
         Log.i(Utility.LogTag, "ChatHeadService.onDestroy()");
         if (chatheadView != null) {
             windowManager.removeView(chatheadView);
-        }
-
-        if (txtView != null) {
-            windowManager.removeView(txtView);
         }
 
         if (removeView != null) {
