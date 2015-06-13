@@ -121,7 +121,7 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
                     MyDialog.myDialog.finish();
                 }
 
-                service.stopService(new Intent(service, ChatHeadService.class));
+                service.stopSelf();
                 inBounded = false;
                 break;
             }
