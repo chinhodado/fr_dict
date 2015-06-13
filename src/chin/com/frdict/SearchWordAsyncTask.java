@@ -3,6 +3,7 @@ package chin.com.frdict;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,6 +11,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import android.webkit.WebView;
 
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
@@ -39,8 +41,19 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         try {
             html = Jsoup.connect("http://en.wiktionary.org/w/index.php?title=" + word + "&printable=yes")
                     .ignoreContentType(true).execute().body();
-        } catch (IOException e) {
-            html = "Error getting word from Wiktionary. Probably 404-ed";
+        }
+        catch (HttpStatusException e) {
+            exceptionOccurred = true;
+            if (e.getStatusCode() == 404) {
+                html = "Error getting word from Wiktionary. 404-ed.";
+            }
+            else {
+                html = "Response is not 200, something happened.";
+            }
+            Log.i(Utility.LogTag, html);
+        }
+        catch (IOException e) {
+            html = "IOException-ed. Check your connection.";
             exceptionOccurred = true;
             e.printStackTrace();
         }
