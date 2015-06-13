@@ -1,6 +1,7 @@
 package chin.com.frdict;
 
 import android.app.Service;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -51,6 +52,23 @@ public class ChatHeadService extends Service {
         windowManager.addView(chatheadView, chatheadParams);
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
+
+        // automatically search word when copy to clipboard
+        final ClipboardManager clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipMan.addPrimaryClipChangedListener (new ClipboardManager.OnPrimaryClipChangedListener() {
+            @Override
+            public void onPrimaryClipChanged() {
+                @SuppressWarnings("deprecation")
+                String str = (String) clipMan.getText();
+                if (str != null && str.length() > 0) {
+                    if (!MyDialog.active) {
+                        Intent it = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(it);
+                    }
+                    new SearchWordAsyncTask(MyDialog.myDialog.webView, str).execute();
+                }
+            }
+        });
     }
 
     @Override

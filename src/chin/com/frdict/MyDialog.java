@@ -19,7 +19,8 @@ import android.widget.Toast;
 
 public class MyDialog extends Activity {
     public static boolean active = false;
-    public static Activity myDialog;
+    public static MyDialog myDialog;
+    public WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,7 @@ public class MyDialog extends Activity {
         final EditText edt = (EditText) findViewById(R.id.dialog_edt);
         final ImageView searchImg = (ImageView) findViewById(R.id.imageView_search);
         View top = (View) findViewById(R.id.dialog_top);
-        final WebView webView = (WebView) findViewById(R.id.webView1);
+        webView = (WebView) findViewById(R.id.webView1);
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
