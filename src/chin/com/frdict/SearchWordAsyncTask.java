@@ -1,6 +1,7 @@
 package chin.com.frdict;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,6 +16,17 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     WebView webView;
     String word;
     boolean exceptionOccurred = false;
+
+    // sections that we want to move to the back of the page
+    static HashMap<String, Boolean> backSectionsMap;
+    static
+    {
+        backSectionsMap = new HashMap<String, Boolean>();
+        backSectionsMap.put("Etymology", false);
+        backSectionsMap.put("Etymology 1", false);
+        backSectionsMap.put("Etymology 2", false);
+        backSectionsMap.put("Pronunciation", false);
+    }
 
     public SearchWordAsyncTask(WebView webView, String word) {
         this.webView = webView;
@@ -55,11 +67,9 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
             Elements children = content.children();
             boolean frenchFound = false;
             boolean frenchEndReached = false;
-            boolean isCurrentlyEtymology = false;
-            boolean isCurrentlyPronunciation = false;
+            boolean isCurrentlyBackSection = false;
             Elements frenchCollection = new Elements();
-            Elements etymologyCollection = new Elements();
-            Elements pronunciationCollection = new Elements();
+            Elements backSectionCollection = new Elements();
             for (Element elem : children) {
                 if (!frenchFound) {
                     if (elem.tagName().equals("h2") && elem.text().equals("French")) {
@@ -70,36 +80,29 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
                     }
                 }
                 else {
-                    if (!elem.tagName().equals("h2") && !(elem.tagName().equals("h3") && elem.text().equals("External links")) && !frenchEndReached) {
-                        // get etylmology and pronunciation sections so that we can move them to the back
+                    if (!elem.tagName().equals("h2")  &&                                          // French, English, etc.
+                        !(elem.tagName().equals("h3") && elem.text().equals("External links")) && // remove external links section
+                        !frenchEndReached) {
+                        // get etylmology, pronunciation, etc. sections so that we can move them to the back
                         // of the page later, instead of having them at the beginning of the page
-                        if (elem.tagName().equals("h3") && elem.text().startsWith("Etymology")) {
-                            isCurrentlyEtymology = true;
-                            isCurrentlyPronunciation = false;
-                            etymologyCollection.add(elem);
+                        if (isBackSectionHeader(elem)) {
+                            backSectionsMap.put(elem.text(), true);
+                            isCurrentlyBackSection = true;
+                            backSectionCollection.add(elem);
                         }
-                        else if (elem.tagName().equals("h3") && elem.text().equals("Pronunciation")) {
-                            isCurrentlyPronunciation = true;
-                            isCurrentlyEtymology = false;
-                            pronunciationCollection.add(elem);
-                        }
-                        else if (elem.tagName().equals("h3") || elem.tagName().equals("h4")) {
-                            // something other than etymology and pronunciation
-                            isCurrentlyEtymology = false;
-                            isCurrentlyPronunciation = false;
+                        else if (isSubheaders(elem)) {
+                            // something other than etymology and pronunciation, etc.
+                            if (isCurrentlyBackSection) {
+                                isCurrentlyBackSection = false;
+                                // TODO: clear the map?
+                            }
                             frenchCollection.add(elem);
                         }
-                        else if (isCurrentlyEtymology) {
-                            isCurrentlyPronunciation = false;
-                            etymologyCollection.add(elem);
-                        }
-                        else if (isCurrentlyPronunciation) {
-                            isCurrentlyEtymology = false;
-                            pronunciationCollection.add(elem);
+                        else if (isCurrentlyBackSection) {
+                            backSectionCollection.add(elem);
                         }
                         else {
-                            isCurrentlyPronunciation = false;
-                            isCurrentlyEtymology = false;
+                            isCurrentlyBackSection = false;
                             frenchCollection.add(elem);
                         }
                     }
@@ -111,8 +114,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
             }
 
             // put pronunciation and etymology sections to the back
-            frenchCollection.addAll(pronunciationCollection);
-            frenchCollection.addAll(etymologyCollection);
+            frenchCollection.addAll(backSectionCollection);
 
             //webView.getSettings().setJavaScriptEnabled(true);
             if (frenchFound) {
@@ -124,6 +126,14 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isSubheaders(Element elem) {
+        return elem.tagName().equals("h3") || elem.tagName().equals("h4") || elem.tagName().equals("h5");
+    }
+
+    private boolean isBackSectionHeader(Element elem) {
+        return isSubheaders(elem) && backSectionsMap.containsKey(elem.text());
     }
 
     private static void removeComments(Node node) {
