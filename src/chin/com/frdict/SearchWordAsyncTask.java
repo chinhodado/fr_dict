@@ -73,7 +73,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
                     if (!elem.tagName().equals("h2") && !(elem.tagName().equals("h3") && elem.text().equals("External links")) && !frenchEndReached) {
                         // get etylmology and pronunciation sections so that we can move them to the back
                         // of the page later, instead of having them at the beginning of the page
-                        if (elem.tagName().equals("h3") && elem.text().equals("Etymology")) {
+                        if (elem.tagName().equals("h3") && elem.text().startsWith("Etymology")) {
                             isCurrentlyEtymology = true;
                             isCurrentlyPronunciation = false;
                             etymologyCollection.add(elem);
@@ -83,7 +83,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
                             isCurrentlyEtymology = false;
                             pronunciationCollection.add(elem);
                         }
-                        else if (elem.tagName().equals("h3")) {
+                        else if (elem.tagName().equals("h3") || elem.tagName().equals("h4")) {
                             // something other than etymology and pronunciation
                             isCurrentlyEtymology = false;
                             isCurrentlyPronunciation = false;
