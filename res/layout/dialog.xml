@@ -26,20 +26,34 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <EditText
-                android:id="@+id/dialog_edt"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:imeOptions="actionSearch">
-            </EditText>
-
+                android:layout_height="wrap_content" >
+                
+                <EditText
+                    android:id="@+id/dialog_edt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch">
+                </EditText>
+    
+                <ImageView
+                    android:id="@+id/imageView_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:src="@android:drawable/ic_search_category_default" />
+            
+            </RelativeLayout>
+            
             <WebView
                 android:id="@+id/webView1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>

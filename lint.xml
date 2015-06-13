@@ -6,4 +6,7 @@
     <issue id="HardcodedText">
         <ignore path="res/layout/dialog.xml" />
     </issue>
+    <issue id="RtlHardcoded">
+        <ignore path="res/layout/dialog.xml" />
+    </issue>
 </lint>

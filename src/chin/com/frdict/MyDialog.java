@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class MyDialog extends Activity {
         setContentView(R.layout.dialog);
 
         final EditText edt = (EditText) findViewById(R.id.dialog_edt);
+        final ImageView searchImg = (ImageView) findViewById(R.id.imageView_search);
         View top = (View) findViewById(R.id.dialog_top);
         final WebView webView = (WebView) findViewById(R.id.webView1);
         webView.setWebViewClient(new WebViewClient() {
@@ -54,6 +56,20 @@ public class MyDialog extends Activity {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        searchImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = edt.getText().toString();
+                if (str.length() > 0) {
+                    new SearchWordAsyncTask(webView, str).execute();
+                }
+
+                // hide the keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
             }
         });
 
