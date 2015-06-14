@@ -21,6 +21,29 @@ public class ChatHeadService extends Service {
     public RelativeLayout chatheadView, removeView;
     public ImageView removeImg;
     public Point szWindow = new Point();
+    ClipboardManager clipMan;
+    static boolean hasClipChangedListener = false;
+
+    /**
+     * Event handler for looking up the word that was just copied into the clipboard
+     */
+    ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new ClipboardManager.OnPrimaryClipChangedListener() {
+        @Override
+        public void onPrimaryClipChanged() {
+            String str = (String) clipMan.getText();
+            if (str != null && str.length() > 0) {
+                if (!MyDialog.active) {
+                    Intent intent = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("FromClipboard", str);
+                    startActivity(intent);
+                }
+                else {
+                    new SearchWordAsyncTask(MyDialog.myDialog.webView, str).execute();
+                    MyDialog.myDialog.edt.setText(str);
+                }
+            }
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -54,21 +77,8 @@ public class ChatHeadService extends Service {
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
 
         // automatically search word when copy to clipboard
-        final ClipboardManager clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        clipMan.addPrimaryClipChangedListener (new ClipboardManager.OnPrimaryClipChangedListener() {
-            @Override
-            public void onPrimaryClipChanged() {
-                @SuppressWarnings("deprecation")
-                String str = (String) clipMan.getText();
-                if (str != null && str.length() > 0) {
-                    if (!MyDialog.active) {
-                        Intent it = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(it);
-                    }
-                    new SearchWordAsyncTask(MyDialog.myDialog.webView, str).execute();
-                }
-            }
-        });
+        clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        regPrimaryClipChanged();
     }
 
     @Override
@@ -169,6 +179,26 @@ public class ChatHeadService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Register the clipboard event handler
+     */
+    private void regPrimaryClipChanged() {
+        if (!hasClipChangedListener) {
+            clipMan.addPrimaryClipChangedListener(primaryClipChangedListener);
+            hasClipChangedListener = true;
+        }
+    }
+
+    /**
+     * Unregister the clipboard event handler
+     */
+    private void unRegPrimaryClipChanged() {
+        if (hasClipChangedListener) {
+            clipMan.removePrimaryClipChangedListener(primaryClipChangedListener);
+            hasClipChangedListener = false;
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -180,6 +210,8 @@ public class ChatHeadService extends Service {
         if (removeView != null) {
             windowManager.removeView(removeView);
         }
+
+        unRegPrimaryClipChanged();
     }
 
     @Override
