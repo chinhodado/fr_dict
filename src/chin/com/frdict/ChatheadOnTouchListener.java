@@ -22,8 +22,6 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
     Runnable runnable_longClick = new Runnable() {
         @Override
         public void run() {
-            Log.d(Utility.LogTag, "Into runnable_longClick");
-
             isLongclick = true;
             service.removeView.setVisibility(View.VISIBLE);
             chathead_longclick();
@@ -155,7 +153,6 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
 
             break;
         default:
-            Log.d(Utility.LogTag, "chatheadView.setOnTouchListener  -> event.getAction() : default");
             break;
         }
         return true;
@@ -172,8 +169,6 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
     }
 
     private void chathead_longclick() {
-        Log.d(Utility.LogTag, "Into ChatHeadService.chathead_longclick() ");
-
         WindowManager.LayoutParams param_remove = (WindowManager.LayoutParams) service.removeView.getLayoutParams();
         int x_cord_remove = (service.szWindow.x - service.removeView.getWidth()) / 2;
         int y_cord_remove = service.szWindow.y - (service.removeView.getHeight() + service.getStatusBarHeight());
