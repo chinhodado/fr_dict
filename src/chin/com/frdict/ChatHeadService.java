@@ -32,6 +32,7 @@ public class ChatHeadService extends Service {
         public void onPrimaryClipChanged() {
             String str = (String) clipMan.getText();
             if (str != null && str.length() > 0) {
+                // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
                 if (!MyDialog.active) {
                     Intent intent = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra("FromClipboard", str);

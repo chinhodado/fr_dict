@@ -2,6 +2,7 @@ package chin.com.frdict;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,15 +22,17 @@ public class MyDialog extends Activity {
     public static boolean active = false;
     public static MyDialog myDialog;
     public WebView webView;
+    public EditText edt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(Utility.LogTag, "MyDialog onCreate()");
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.dialog);
 
-        final EditText edt = (EditText) findViewById(R.id.dialog_edt);
+        edt = (EditText) findViewById(R.id.dialog_edt);
         final ImageView searchImg = (ImageView) findViewById(R.id.imageView_search);
         View top = (View) findViewById(R.id.dialog_top);
         webView = (WebView) findViewById(R.id.webView1);
@@ -87,6 +90,32 @@ public class MyDialog extends Activity {
         Log.i(Utility.LogTag, "MyDialog onResume()");
         super.onResume();
         active = true;
+
+        processIntent();
+    }
+
+    /**
+     * Process the intent used to start up/bring up this activity
+     */
+    private void processIntent() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            String str = bundle.getString("FromClipboard");
+            if (str != null && !str.equals("")) {
+                new SearchWordAsyncTask(webView, str).execute();
+                edt.setText(str);
+            }
+        }
+    }
+
+    /**
+     * Needed since this activity is a singleTask one
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        processIntent();
     }
 
     @Override
