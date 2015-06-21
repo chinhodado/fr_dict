@@ -1,6 +1,7 @@
 package chin.com.frdict;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 import org.jsoup.HttpStatusException;
@@ -41,7 +42,8 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         try {
             // the mobileaction=toggle_view_desktop part may not be needed. I'm not sure...
             // there's also useformat=desktop, try it when all else fail
-            html = Jsoup.connect("http://en.wiktionary.org/w/index.php?title=" + word + "&printable=yes&mobileaction=toggle_view_desktop")
+            String encodedWord = URLEncoder.encode(word, "UTF-8");
+            html = Jsoup.connect("http://en.wiktionary.org/w/index.php?title=" + encodedWord + "&printable=yes&mobileaction=toggle_view_desktop")
                     .userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36")
                     .referrer("http://www.google.com")
                     .ignoreContentType(true).execute().body();
