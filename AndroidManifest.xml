@@ -30,6 +30,7 @@
         <activity
             android:name="chin.com.frdict.MyDialog"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden"
             android:theme="@android:style/Theme.Translucent" />
 
         <service android:name="chin.com.frdict.ChatHeadService" ></service>
