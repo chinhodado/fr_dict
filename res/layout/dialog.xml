@@ -10,14 +10,14 @@
         android:id="@+id/dialog_top"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4.00"
+        android:layout_weight="1"
         android:clickable="true" />
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="8"
+        android:layout_weight="1"
         android:background="#FFFFFF"
         android:fillViewport="true" >
 
