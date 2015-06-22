@@ -39,24 +39,47 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
         String html = null;
+        String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36";
+        String baseUrl = "http://en.wiktionary.org/w/index.php?title=%s&printable=yes&mobileaction=toggle_view_desktop";
         try {
             // the mobileaction=toggle_view_desktop part may not be needed. I'm not sure...
             // there's also useformat=desktop, try it when all else fail
             String encodedWord = URLEncoder.encode(word, "UTF-8");
-            html = Jsoup.connect("http://en.wiktionary.org/w/index.php?title=" + encodedWord + "&printable=yes&mobileaction=toggle_view_desktop")
-                    .userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36")
-                    .referrer("http://www.google.com")
-                    .ignoreContentType(true).execute().body();
+            html = Jsoup.connect(String.format(baseUrl, encodedWord))
+                        .userAgent(userAgent).referrer("http://www.google.com")
+                        .ignoreContentType(true).execute().body();
         }
         catch (HttpStatusException e) {
-            exceptionOccurred = true;
             if (e.getStatusCode() == 404) {
-                html = "Error getting word from Wiktionary. 404-ed.";
+                // try again with lowercase
+                try {
+                    String encodedWord = URLEncoder.encode(word.toLowerCase(), "UTF-8");
+                    html = Jsoup.connect(String.format(baseUrl, encodedWord))
+                                .userAgent(userAgent).referrer("http://www.google.com")
+                                .ignoreContentType(true).execute().body();
+                }
+                catch (HttpStatusException e2) {
+                    exceptionOccurred = true;
+                    if (e.getStatusCode() == 404) {
+                        html = "Error getting word from Wiktionary. 404-ed.";
+                    }
+                    else {
+                        html = "Response is not 200, something happened.";
+                    }
+                    Log.i(Utility.LogTag, html);
+                }
+                catch (IOException e2) {
+                    html = "IOException-ed. Check your connection.";
+                    exceptionOccurred = true;
+                    e.printStackTrace();
+                }
+
             }
             else {
+                exceptionOccurred = true;
                 html = "Response is not 200, something happened.";
+                Log.i(Utility.LogTag, html);
             }
-            Log.i(Utility.LogTag, html);
         }
         catch (IOException e) {
             html = "IOException-ed. Check your connection.";
