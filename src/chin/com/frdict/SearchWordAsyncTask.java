@@ -11,6 +11,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
+import com.chin.common.Util;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.WebView;
@@ -18,6 +23,8 @@ import android.webkit.WebView;
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     WebView webView;
     String word;
+    Context context;
+    boolean isOnline;
     boolean exceptionOccurred = false;
 
     // sections that we want to move to the back of the page
@@ -31,14 +38,77 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         backSectionsMap.put("Pronunciation", false);
     }
 
-    public SearchWordAsyncTask(WebView webView, String word) {
+    public SearchWordAsyncTask(Context context, WebView webView, String word) {
+        this.context = context;
         this.webView = webView;
         this.word = word;
     }
 
     @Override
     protected String doInBackground(Void... params) {
-        String html = null;
+        if (Util.hasNetworkConnectivity(context)) {
+            isOnline = true;
+            return getWordDefinitionOnline();
+        }
+        else {
+            isOnline = false;
+            return getWordDefinitionOffline();
+        }
+    }
+
+    @Override
+    protected void onPostExecute(String html) {
+        if (isOnline) {
+            displayWordOnline(html);
+        }
+        else {
+            displayWordOffline(html);
+        }
+    }
+
+    private boolean isSubheaders(Element elem) {
+        return elem.tagName().equals("h3") || elem.tagName().equals("h4") || elem.tagName().equals("h5");
+    }
+
+    private boolean isBackSectionHeader(Element elem) {
+        return isSubheaders(elem) && backSectionsMap.containsKey(elem.text());
+    }
+
+    private static void removeComments(Node node) {
+        for (int i = 0; i < node.childNodes().size();) {
+            Node child = node.childNode(i);
+            if (child.nodeName().equals("#comment"))
+                child.remove();
+            else {
+                removeComments(child);
+                i++;
+            }
+        }
+    }
+
+    private String getWordDefinitionOffline() {
+        String definition;
+        try {
+            DatabaseQuerier dbq = new DatabaseQuerier(context);
+            SQLiteDatabase db = dbq.getDatabase();
+            Cursor cursor = db.rawQuery("select definition from word where word = ? collate nocase", new String[] { word });
+
+            // assuming we always have 1 result...
+            cursor.moveToFirst();
+
+            definition = cursor.getString(cursor.getColumnIndex("definition"));
+        }
+        catch (Exception e) {
+            definition = "Something went wrong when trying to get definition offline.";
+            exceptionOccurred = true;
+            e.printStackTrace();
+        }
+
+        return definition;
+    }
+
+    private String getWordDefinitionOnline() {
+        String html;
         String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36";
         String baseUrl = "http://en.wiktionary.org/w/index.php?title=%s&printable=yes&mobileaction=toggle_view_desktop";
         try {
@@ -89,8 +159,11 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         return html;
     }
 
-    @Override
-    protected void onPostExecute(String html) {
+    private void displayWordOffline(String html) {
+        webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
+    }
+
+    private void displayWordOnline(String html) {
         try {
             if (exceptionOccurred) {
                 webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
@@ -170,26 +243,6 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private boolean isSubheaders(Element elem) {
-        return elem.tagName().equals("h3") || elem.tagName().equals("h4") || elem.tagName().equals("h5");
-    }
-
-    private boolean isBackSectionHeader(Element elem) {
-        return isSubheaders(elem) && backSectionsMap.containsKey(elem.text());
-    }
-
-    private static void removeComments(Node node) {
-        for (int i = 0; i < node.childNodes().size();) {
-            Node child = node.childNode(i);
-            if (child.nodeName().equals("#comment"))
-                child.remove();
-            else {
-                removeComments(child);
-                i++;
-            }
         }
     }
 }

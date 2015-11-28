@@ -51,7 +51,7 @@ public class MyDialog extends Activity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
-                        new SearchWordAsyncTask(webView, str).execute();
+                        new SearchWordAsyncTask(MyDialog.this, webView, str).execute();
                     }
 
                     // hide the keyboard
@@ -68,7 +68,7 @@ public class MyDialog extends Activity {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    new SearchWordAsyncTask(webView, str).execute();
+                    new SearchWordAsyncTask(MyDialog.this, webView, str).execute();
                 }
 
                 // hide the keyboard
@@ -102,7 +102,7 @@ public class MyDialog extends Activity {
         if (bundle != null) {
             String str = bundle.getString("FromClipboard");
             if (str != null && !str.equals("")) {
-                new SearchWordAsyncTask(webView, str).execute();
+                new SearchWordAsyncTask(MyDialog.this, webView, str).execute();
                 edt.setText(str);
             }
         }

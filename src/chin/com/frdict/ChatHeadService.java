@@ -43,7 +43,7 @@ public class ChatHeadService extends Service {
                     startActivity(intent);
                 }
                 else {
-                    new SearchWordAsyncTask(MyDialog.myDialog.webView, str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, MyDialog.myDialog.webView, str).execute();
                     MyDialog.myDialog.edt.setText(str);
                 }
             }
