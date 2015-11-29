@@ -118,14 +118,16 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
             handler_longClick.removeCallbacks(runnable_longClick);
 
             if (inBounded) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    MyDialog.myDialog.finishAndRemoveTask();
-                }
-                else {
-                    // This will leave the task in the task list
-                    // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
-                    // and I don't own any pre-lollipop device anyway...
-                    MyDialog.myDialog.finish();
+                if (MyDialog.myDialog != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        MyDialog.myDialog.finishAndRemoveTask();
+                    }
+                    else {
+                        // This will leave the task in the task list
+                        // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
+                        // and I don't own any pre-lollipop device anyway...
+                        MyDialog.myDialog.finish();
+                    }
                 }
                 service.stopSelf();
                 MainActivity.serviceRegistered = false;
