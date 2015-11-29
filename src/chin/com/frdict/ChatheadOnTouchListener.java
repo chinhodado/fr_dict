@@ -1,6 +1,8 @@
 package chin.com.frdict;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -28,6 +30,7 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
         }
     };
 
+    @SuppressLint("NewApi")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) service.chatheadView.getLayoutParams();
@@ -115,11 +118,17 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
             handler_longClick.removeCallbacks(runnable_longClick);
 
             if (inBounded) {
-                if (MyDialog.active) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    MyDialog.myDialog.finishAndRemoveTask();
+                }
+                else {
+                    // This will leave the task in the task list
+                    // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
+                    // and I don't own any pre-lollipop device anyway...
                     MyDialog.myDialog.finish();
                 }
-
                 service.stopSelf();
+                MainActivity.serviceRegistered = false;
                 inBounded = false;
                 break;
             }
