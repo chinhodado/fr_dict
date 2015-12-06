@@ -1,8 +1,6 @@
 package chin.com.frdict;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -118,16 +116,8 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
             handler_longClick.removeCallbacks(runnable_longClick);
 
             if (inBounded) {
-                if (MyDialog.myDialog != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        MyDialog.myDialog.finishAndRemoveTask();
-                    }
-                    else {
-                        // This will leave the task in the task list
-                        // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
-                        // and I don't own any pre-lollipop device anyway...
-                        MyDialog.myDialog.finish();
-                    }
+                if (ChatHeadService.mainView != null) { // should always be true
+                    ChatHeadService.windowManager.removeView(ChatHeadService.mainView);
                 }
                 service.stopSelf();
                 MainActivity.serviceRegistered = false;
@@ -171,11 +161,13 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
 
     private void chathead_click() {
         Log.i(Utility.LogTag, "chathead_click()");
-        if (MyDialog.active) {
-            MyDialog.myDialog.moveTaskToBack(true);
-        } else {
-            Intent it = new Intent(service, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            service.startActivity(it);
+        if (ChatHeadService.mainViewVisible) {
+            ChatHeadService.mainView.setVisibility(View.INVISIBLE);
+            ChatHeadService.mainViewVisible = false;
+        }
+        else {
+            ChatHeadService.mainView.setVisibility(View.VISIBLE);
+            ChatHeadService.mainViewVisible = true;
         }
     }
 

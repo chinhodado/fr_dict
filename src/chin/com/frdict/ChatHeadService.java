@@ -2,6 +2,7 @@ package chin.com.frdict;
 
 import android.app.Service;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -10,19 +11,35 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class ChatHeadService extends Service {
-    public WindowManager windowManager;
+    public static WindowManager windowManager;
     public RelativeLayout chatheadView, removeView;
+    public static LinearLayout mainView;
     public ImageView removeImg;
     public Point szWindow = new Point();
+    public static ChatHeadService instance;
     ClipboardManager clipMan;
     static boolean hasClipChangedListener = false;
+    public static boolean mainViewVisible = false;
+    public WebView webView;
+    public EditText edt;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -36,16 +53,12 @@ public class ChatHeadService extends Service {
                 if (str.contains("s'") || str.contains("s’")) {
                 	str = str.replace("s'", "").replace("s’", "");
                 }
-                // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
-                if (!MyDialog.active) {
-                    Intent intent = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("FromClipboard", str);
-                    startActivity(intent);
+                if (!mainViewVisible) {
+                    mainView.setVisibility(View.VISIBLE);
+                    mainViewVisible = true;
                 }
-                else {
-                    new SearchWordAsyncTask(ChatHeadService.this, MyDialog.myDialog.webView, str).execute();
-                    MyDialog.myDialog.edt.setText(str);
-                }
+                new SearchWordAsyncTask(ChatHeadService.this, webView, str).execute();
+                edt.setText(str);
             }
         }
     };
@@ -54,6 +67,7 @@ public class ChatHeadService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(Utility.LogTag, "ChatHeadService.onCreate()");
+        instance = this;
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -68,10 +82,73 @@ public class ChatHeadService extends Service {
         removeImg = (ImageView) removeView.findViewById(R.id.remove_img);
         windowManager.addView(removeView, paramRemove);
 
+        // main view
+        mainView = (LinearLayout) inflater.inflate(R.layout.popup, null);
+        windowManager.getDefaultDisplay().getSize(szWindow);
+        WindowManager.LayoutParams mainViewParams = new WindowManager.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                PixelFormat.TRANSLUCENT);
+
+        windowManager.addView(mainView, mainViewParams);
+        mainViewVisible = true;
+
+        edt = (EditText) mainView.findViewById(R.id.dialog_edt);
+        final ImageView searchImg = (ImageView) mainView.findViewById(R.id.imageView_search);
+        webView = (WebView) mainView.findViewById(R.id.webView1);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(ChatHeadService.this, description, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String str = edt.getText().toString();
+                    if (str.length() > 0) {
+                        new SearchWordAsyncTask(ChatHeadService.this, webView, str).execute();
+                    }
+
+                    // hide the keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        searchImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = edt.getText().toString();
+                if (str.length() > 0) {
+                    new SearchWordAsyncTask(ChatHeadService.this, webView, str).execute();
+                }
+
+                // hide the keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
+            }
+        });
+
+        View top = (View) mainView.findViewById(R.id.dialog_top);
+        top.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainView.setVisibility(View.INVISIBLE);
+                mainViewVisible = false;
+            }
+        });
+
         // chathead
         chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
         windowManager.getDefaultDisplay().getSize(szWindow);
-        WindowManager.LayoutParams chatheadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+        WindowManager.LayoutParams chatheadParams = new WindowManager.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
         chatheadParams.gravity = Gravity.TOP | Gravity.START;
@@ -80,6 +157,7 @@ public class ChatHeadService extends Service {
         windowManager.addView(chatheadView, chatheadParams);
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
+        chatheadView.bringToFront();
 
         // automatically search word when copy to clipboard
         clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
