@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,8 +39,12 @@ public class ChatHeadService extends Service {
     ClipboardManager clipMan;
     static boolean hasClipChangedListener = false;
     public static boolean mainViewVisible = false;
-    public WebView webView;
+    public WebView webView, webView2;
     public EditText edt;
+
+    enum Dictionary {
+        Wiktionary, OxfordHachette
+    }
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -94,16 +99,24 @@ public class ChatHeadService extends Service {
         windowManager.addView(mainView, mainViewParams);
         mainViewVisible = true;
 
-        edt = (EditText) mainView.findViewById(R.id.dialog_edt);
-        final ImageView searchImg = (ImageView) mainView.findViewById(R.id.imageView_search);
+        // main view - web views
         webView = (WebView) mainView.findViewById(R.id.webView1);
+        webView2 = (WebView) mainView.findViewById(R.id.webView2);
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 Toast.makeText(ChatHeadService.this, description, Toast.LENGTH_SHORT).show();
             }
         });
+        webView2.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(ChatHeadService.this, description, Toast.LENGTH_SHORT).show();
+            }
+        });
 
+        // main view - edit text
+        edt = (EditText) mainView.findViewById(R.id.dialog_edt);
         edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -122,6 +135,8 @@ public class ChatHeadService extends Service {
             }
         });
 
+        // main view - search image
+        final ImageView searchImg = (ImageView) mainView.findViewById(R.id.imageView_search);
         searchImg.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,6 +151,7 @@ public class ChatHeadService extends Service {
             }
         });
 
+        // main view - invisible top section
         View top = (View) mainView.findViewById(R.id.dialog_top);
         top.setOnClickListener(new OnClickListener() {
             @Override
@@ -158,6 +174,34 @@ public class ChatHeadService extends Service {
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
         chatheadView.bringToFront();
+
+        // main view - dictionary tabs
+        TextView wiktionaryTv = (TextView) mainView.findViewById(R.id.textViewLabelDict1);
+        TextView oxfordTv = (TextView) mainView.findViewById(R.id.textViewLabelDict2);
+        final View wiktionaryIndicator = mainView.findViewById(R.id.indicatorDict1);
+        final View oxfordIndicator = mainView.findViewById(R.id.indicatorDict2);
+        final ScrollView scrollView1 = (ScrollView) mainView.findViewById(R.id.scrollView1);
+        final ScrollView scrollView2 = (ScrollView) mainView.findViewById(R.id.scrollView2);
+        OnClickListener dictTabOnClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView tv = (TextView) v;
+                if (tv.getText().equals("Wiktionary")) {
+                    wiktionaryIndicator.setVisibility(View.VISIBLE);
+                    oxfordIndicator.setVisibility(View.INVISIBLE);
+                    scrollView1.setVisibility(View.VISIBLE);
+                    scrollView2.setVisibility(View.GONE);
+                }
+                else if (tv.getText().equals("Oxford Hachette")) {
+                    wiktionaryIndicator.setVisibility(View.INVISIBLE);
+                    oxfordIndicator.setVisibility(View.VISIBLE);
+                    scrollView1.setVisibility(View.GONE);
+                    scrollView2.setVisibility(View.VISIBLE);
+                }
+            }
+        };
+        wiktionaryTv.setOnClickListener(dictTabOnClickListener);
+        oxfordTv.setOnClickListener(dictTabOnClickListener);
 
         // automatically search word when copy to clipboard
         clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);

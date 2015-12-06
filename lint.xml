@@ -5,8 +5,10 @@
     </issue>
     <issue id="HardcodedText">
         <ignore path="res/layout/dialog.xml" />
+        <ignore path="res/layout/popup.xml" />
     </issue>
     <issue id="RtlHardcoded">
         <ignore path="res/layout/dialog.xml" />
+        <ignore path="res/layout/popup.xml" />
     </issue>
 </lint>
