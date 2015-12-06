@@ -31,6 +31,7 @@
             android:id="@+id/imageView_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/dialog_edt"
             android:layout_alignParentRight="true"
             android:src="@android:drawable/ic_search_category_default" />
     
