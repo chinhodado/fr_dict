@@ -65,8 +65,8 @@ public class ChatHeadService extends Service {
                     mainView.setVisibility(View.VISIBLE);
                     mainViewVisible = true;
                 }
-                new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str).execute();
-                new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str).execute();
+                new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str, true).execute();
+                new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str, false).execute();
                 edt.setText(str);
             }
         }
@@ -130,8 +130,8 @@ public class ChatHeadService extends Service {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
-                        new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str).execute();
-                        new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str).execute();
+                        new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str, true).execute();
+                        new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str, false).execute();
                     }
 
                     // hide the keyboard
@@ -150,8 +150,8 @@ public class ChatHeadService extends Service {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str).execute();
-                    new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str, true).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str, false).execute();
                 }
 
                 // hide the keyboard

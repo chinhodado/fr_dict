@@ -24,6 +24,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     String word;
     Context context;
     BaseDictionarySqliteDatabase db;
+    boolean canOnline;
     boolean isOnline;
     boolean exceptionOccurred = false;
 
@@ -38,16 +39,25 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         backSectionsMap.put("Pronunciation", false);
     }
 
-    public SearchWordAsyncTask(Context context, WebView webView, BaseDictionarySqliteDatabase db, String word) {
+    /**
+     * Constructor
+     * @param context A context
+     * @param webView The webview to display the word definition
+     * @param db The database helper to work with an offline database
+     * @param word The word to look up
+     * @param canOnline If this is false, word will always be looked up offline, no matter the network state
+     */
+    public SearchWordAsyncTask(Context context, WebView webView, BaseDictionarySqliteDatabase db, String word, boolean canOnline) {
         this.context = context;
         this.webView = webView;
         this.word = word;
         this.db = db;
+        this.canOnline = canOnline;
     }
 
     @Override
     protected String doInBackground(Void... params) {
-        if (Util.hasNetworkConnectivity(context)) {
+        if (Util.hasNetworkConnectivity(context) && canOnline) {
             isOnline = true;
             return getWordDefinitionOnline();
         }
