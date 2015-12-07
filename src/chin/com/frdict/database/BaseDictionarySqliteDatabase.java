@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class BaseDictionarySqliteDatabase extends SQLiteAssetHelper{
     protected SQLiteDatabase db;
-    private static Context context;
+    protected static Context context;
 
     protected BaseDictionarySqliteDatabase(Context context, String dbName, int dbVersion) {
         super(context, dbName, null, dbVersion);

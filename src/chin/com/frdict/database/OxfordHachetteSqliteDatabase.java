@@ -1,6 +1,7 @@
 package chin.com.frdict.database;
 
 import android.content.Context;
+import chin.com.frdict.R;
 
 /**
  * Helper class for working with the Oxford Hachette database
@@ -27,7 +28,7 @@ public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
     @Override
     public String getWordDefinition(String name) {
         String definition = super.getWordDefinition(name);
-
+        definition = "<style>" + context.getString(R.string.oxford_hachette_css) + "</style>" + definition;
         return definition;
     }
 }

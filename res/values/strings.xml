@@ -1,3 +1,43 @@
 <resources>
     <string name="app_name">FR Dict</string>
+    <string name="oxford_hachette_css">
+        <![CDATA[
+        .green  { color: rgba(118, 156, 60,  1); }
+        .bl     { color: rgba(54,  95,  145, 1); }
+        .orange { color: rgba(247, 150, 70,  1); }
+        .brown  { color: rgba(99,  36,  35,  1); }
+        .red    { color: rgba(192, 80,  77,  1); }
+        .purple { color: rgba(95,  73,  122, 1); }
+        
+        .b { font-weight: bold; }
+        .sr { font-family: Cambria; }
+        .title {
+          color: rgba(54, 95, 145, 1);
+          font-weight:bold;
+          font-size:22px;
+        }
+        
+        .s1 { margin:0 0 20px; }
+        .s2 { margin:0 0 4px 4px; }
+        .s3 { margin:0 0 10px; }
+        .s4 { margin:4px 0 0; }
+        .s5 { padding:0 0 0 2px; }
+        .s6 { margin:0 0 8px; }
+        .s7 { margin:0 0 8px; padding:0 0 0 2px; }
+        .s8 { margin:0 0 4px; }
+        .s9 {
+          background-color:rgba(240,240,240,1);
+          margin:10px 0 0;
+          padding:2px;
+        }
+        .s10 {
+          background-color:rgba(238,236,225,1);
+          padding:2px;
+        }
+        .s11 { margin:10px 0 4px; }
+        
+        body { font-family: Calibri, sans-serif; }
+        table { width:100%; }
+        ]]>
+    </string>
 </resources>
