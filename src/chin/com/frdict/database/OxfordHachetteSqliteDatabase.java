@@ -1,34 +1,33 @@
 package chin.com.frdict.database;
 
-import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
-
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-public class OxfordHachetteSqliteDatabase extends SQLiteAssetHelper {
-    private static final String DATABASE_NAME = "oxford hachette v3.db";
-    public static final int DATABASE_VERSION = 20151206;
-    private static SQLiteDatabase db;
-    static Context context;
+/**
+ * Helper class for working with the Oxford Hachette database
+ * @author Chin
+ */
+public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
+    private static String DATABASE_NAME = "oxford hachette v3.db";
+    public static int DATABASE_VERSION = 20151206;
+    protected static BaseDictionarySqliteDatabase instance;
 
     private OxfordHachetteSqliteDatabase(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        setForcedUpgrade();
-        OxfordHachetteSqliteDatabase.context = context;
+        super(context, DATABASE_NAME, DATABASE_VERSION);
     }
 
-    public static void InitializeDatabase(Context context) {
-        if (db == null) {
+    public static BaseDictionarySqliteDatabase getInstance(Context context) {
+        if (instance == null) {
             OxfordHachetteSqliteDatabase dbHelper = new OxfordHachetteSqliteDatabase(context);
-            db = dbHelper.getReadableDatabase();
+            dbHelper.db = dbHelper.getReadableDatabase();
+            instance = dbHelper;
         }
-        else {
-            Log.i("OxfordHachetteSqliteDatabase", "Already initialized");
-        }
+        return instance;
     }
 
-    public static SQLiteDatabase getDatabase() {
-        return db;
+    @Override
+    public String getWordDefinition(String name) {
+        String definition = super.getWordDefinition(name);
+
+        return definition;
     }
 }

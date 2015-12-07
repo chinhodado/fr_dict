@@ -14,18 +14,16 @@ import org.jsoup.select.Elements;
 import com.chin.common.Util;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.WebView;
+import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     WebView webView;
-    String tableName;
     String word;
     Context context;
-    SQLiteDatabase db;
+    BaseDictionarySqliteDatabase db;
     boolean isOnline;
     boolean exceptionOccurred = false;
 
@@ -40,10 +38,9 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         backSectionsMap.put("Pronunciation", false);
     }
 
-    public SearchWordAsyncTask(Context context, WebView webView, SQLiteDatabase db, String word) {
+    public SearchWordAsyncTask(Context context, WebView webView, BaseDictionarySqliteDatabase db, String word) {
         this.context = context;
         this.webView = webView;
-        this.tableName = tableName;
         this.word = word;
         this.db = db;
     }
@@ -91,22 +88,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     }
 
     private String getWordDefinitionOffline() {
-        String definition;
-        try {
-            Cursor cursor = db.rawQuery("select definition from word where name = ? collate nocase", new String[] { word });
-
-            // assuming we always have 1 result...
-            cursor.moveToFirst();
-
-            definition = cursor.getString(cursor.getColumnIndex("definition"));
-        }
-        catch (Exception e) {
-            definition = "Something went wrong when trying to get definition offline.";
-            exceptionOccurred = true;
-            e.printStackTrace();
-        }
-
-        return definition;
+        return db.getWordDefinition(word);
     }
 
     private String getWordDefinitionOnline() {

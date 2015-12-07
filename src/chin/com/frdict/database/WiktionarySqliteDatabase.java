@@ -1,39 +1,26 @@
 package chin.com.frdict.database;
 
-import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
-
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 /**
- * Helper class for database provisioning
+ * Helper class for working with the Wiktionary database
  * @author Chin
- *
  */
-public class WiktionarySqliteDatabase extends SQLiteAssetHelper {
+public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
     private static final String DATABASE_NAME = "wiktionary_fren.db";
     public static final int DATABASE_VERSION = 20151114;
-    private static SQLiteDatabase db;
-    static Context context;
+    protected static BaseDictionarySqliteDatabase instance;
 
     private WiktionarySqliteDatabase(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        setForcedUpgrade();
-        WiktionarySqliteDatabase.context = context;
+        super(context, DATABASE_NAME, DATABASE_VERSION);
     }
 
-    public static void InitializeDatabase(Context context) {
-        if (db == null) {
+    public static BaseDictionarySqliteDatabase getInstance(Context context) {
+        if (instance == null) {
             WiktionarySqliteDatabase dbHelper = new WiktionarySqliteDatabase(context);
-            db = dbHelper.getReadableDatabase();
+            dbHelper.db = dbHelper.getReadableDatabase();
+            instance = dbHelper;
         }
-        else {
-            Log.i("WiktionarySqliteDatabase", "Already initialized");
-        }
-    }
-
-    public static SQLiteDatabase getDatabase() {
-        return db;
+        return instance;
     }
 }

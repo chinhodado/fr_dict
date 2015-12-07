@@ -28,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
@@ -43,6 +44,10 @@ public class ChatHeadService extends Service {
     public static boolean mainViewVisible = false;
     public WebView webView, webView2;
     public EditText edt;
+
+    // dictionaries
+    BaseDictionarySqliteDatabase wiktionaryDb;
+    BaseDictionarySqliteDatabase oxfordHachetteDb;
 
     enum Dictionary {
         Wiktionary, OxfordHachette
@@ -64,8 +69,8 @@ public class ChatHeadService extends Service {
                     mainView.setVisibility(View.VISIBLE);
                     mainViewVisible = true;
                 }
-                new SearchWordAsyncTask(ChatHeadService.this, webView, WiktionarySqliteDatabase.getDatabase(), str).execute();
-                new SearchWordAsyncTask(ChatHeadService.this, webView2, OxfordHachetteSqliteDatabase.getDatabase(), str).execute();
+                new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str).execute();
+                new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str).execute();
                 edt.setText(str);
             }
         }
@@ -80,8 +85,8 @@ public class ChatHeadService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
-        WiktionarySqliteDatabase.InitializeDatabase(this);
-        OxfordHachetteSqliteDatabase.InitializeDatabase(this);
+        wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
+        oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
 
         // the remove view
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
@@ -129,8 +134,8 @@ public class ChatHeadService extends Service {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
-                        new SearchWordAsyncTask(ChatHeadService.this, webView, WiktionarySqliteDatabase.getDatabase(), str).execute();
-                        new SearchWordAsyncTask(ChatHeadService.this, webView2, OxfordHachetteSqliteDatabase.getDatabase(), str).execute();
+                        new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str).execute();
+                        new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str).execute();
                     }
 
                     // hide the keyboard
@@ -149,8 +154,8 @@ public class ChatHeadService extends Service {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    new SearchWordAsyncTask(ChatHeadService.this, webView, WiktionarySqliteDatabase.getDatabase(), str).execute();
-                    new SearchWordAsyncTask(ChatHeadService.this, webView2, OxfordHachetteSqliteDatabase.getDatabase(), str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str).execute();
                 }
 
                 // hide the keyboard
