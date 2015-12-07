@@ -2,7 +2,6 @@ package chin.com.frdict;
 
 import android.app.Service;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -11,23 +10,12 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
@@ -35,19 +23,15 @@ import chin.com.frdict.database.WiktionarySqliteDatabase;
 public class ChatHeadService extends Service {
     public static WindowManager windowManager;
     public RelativeLayout chatheadView, removeView;
-    public static LinearLayout mainView;
     public ImageView removeImg;
     public Point szWindow = new Point();
     public static ChatHeadService instance;
     ClipboardManager clipMan;
     static boolean hasClipChangedListener = false;
-    public static boolean mainViewVisible = false;
-    public WebView webView, webView2;
-    public EditText edt;
 
     // dictionaries
-    BaseDictionarySqliteDatabase wiktionaryDb;
-    BaseDictionarySqliteDatabase oxfordHachetteDb;
+    public static BaseDictionarySqliteDatabase wiktionaryDb;
+    public static BaseDictionarySqliteDatabase oxfordHachetteDb;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -61,13 +45,17 @@ public class ChatHeadService extends Service {
                 if (str.contains("s'") || str.contains("s’")) {
                 	str = str.replace("s'", "").replace("s’", "");
                 }
-                if (!mainViewVisible) {
-                    mainView.setVisibility(View.VISIBLE);
-                    mainViewVisible = true;
+                // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
+                if (!MyDialog.active) {
+                    Intent intent = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("FromClipboard", str);
+                    startActivity(intent);
                 }
-                new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str, true).execute();
-                new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str, false).execute();
-                edt.setText(str);
+                else {
+                    new SearchWordAsyncTask(ChatHeadService.this, MyDialog.webView, wiktionaryDb, str, true).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, MyDialog.webView2, oxfordHachetteDb, str, false).execute();
+                    MyDialog.myDialog.edt.setText(str);
+                }
             }
         }
     };
@@ -94,82 +82,6 @@ public class ChatHeadService extends Service {
         removeImg = (ImageView) removeView.findViewById(R.id.remove_img);
         windowManager.addView(removeView, paramRemove);
 
-        // main view
-        mainView = (LinearLayout) inflater.inflate(R.layout.popup, null);
-        windowManager.getDefaultDisplay().getSize(szWindow);
-        WindowManager.LayoutParams mainViewParams = new WindowManager.LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-                PixelFormat.TRANSLUCENT);
-
-        windowManager.addView(mainView, mainViewParams);
-        mainViewVisible = true;
-
-        // main view - web views
-        webView = (WebView) mainView.findViewById(R.id.webView1);
-        webView2 = (WebView) mainView.findViewById(R.id.webView2);
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(ChatHeadService.this, description, Toast.LENGTH_SHORT).show();
-            }
-        });
-        webView2.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(ChatHeadService.this, description, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // main view - edit text
-        edt = (EditText) mainView.findViewById(R.id.dialog_edt);
-        edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String str = edt.getText().toString();
-                    if (str.length() > 0) {
-                        new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str, true).execute();
-                        new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str, false).execute();
-                    }
-
-                    // hide the keyboard
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        // main view - search image
-        final ImageView searchImg = (ImageView) mainView.findViewById(R.id.imageView_search);
-        searchImg.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String str = edt.getText().toString();
-                if (str.length() > 0) {
-                    new SearchWordAsyncTask(ChatHeadService.this, webView, wiktionaryDb, str, true).execute();
-                    new SearchWordAsyncTask(ChatHeadService.this, webView2, oxfordHachetteDb, str, false).execute();
-                }
-
-                // hide the keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
-            }
-        });
-
-        // main view - invisible top section
-        View top = (View) mainView.findViewById(R.id.dialog_top);
-        top.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mainView.setVisibility(View.INVISIBLE);
-                mainViewVisible = false;
-            }
-        });
-
         // chathead
         chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
         windowManager.getDefaultDisplay().getSize(szWindow);
@@ -182,35 +94,7 @@ public class ChatHeadService extends Service {
         windowManager.addView(chatheadView, chatheadParams);
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
-        chatheadView.bringToFront();
-
-        // main view - dictionary tabs
-        TextView wiktionaryTv = (TextView) mainView.findViewById(R.id.textViewLabelDict1);
-        TextView oxfordTv = (TextView) mainView.findViewById(R.id.textViewLabelDict2);
-        final View wiktionaryIndicator = mainView.findViewById(R.id.indicatorDict1);
-        final View oxfordIndicator = mainView.findViewById(R.id.indicatorDict2);
-        final ScrollView scrollView1 = (ScrollView) mainView.findViewById(R.id.scrollView1);
-        final ScrollView scrollView2 = (ScrollView) mainView.findViewById(R.id.scrollView2);
-        OnClickListener dictTabOnClickListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextView tv = (TextView) v;
-                if (tv.getText().equals("Wiktionary")) {
-                    wiktionaryIndicator.setVisibility(View.VISIBLE);
-                    oxfordIndicator.setVisibility(View.INVISIBLE);
-                    scrollView1.setVisibility(View.VISIBLE);
-                    scrollView2.setVisibility(View.GONE);
-                }
-                else if (tv.getText().equals("Oxford Hachette")) {
-                    wiktionaryIndicator.setVisibility(View.INVISIBLE);
-                    oxfordIndicator.setVisibility(View.VISIBLE);
-                    scrollView1.setVisibility(View.GONE);
-                    scrollView2.setVisibility(View.VISIBLE);
-                }
-            }
-        };
-        wiktionaryTv.setOnClickListener(dictTabOnClickListener);
-        oxfordTv.setOnClickListener(dictTabOnClickListener);
+//        chatheadView.bringToFront();
 
         // automatically search word when copy to clipboard
         clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
