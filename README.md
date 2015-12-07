@@ -1,6 +1,6 @@
 # FR Dict
 
-![image](https://cloud.githubusercontent.com/assets/1388219/8153166/6bc768aa-12f7-11e5-8058-676cdeed5b9b.png)
+![image](https://cloud.githubusercontent.com/assets/1388219/11618068/262d3274-9c64-11e5-8c77-11f176a53d3c.png)
 
 A French dictionary for Android
 
@@ -10,8 +10,9 @@ Features:
  - Facebook chathead-like activator
  - Automatically looks up word copied into the clipboard
  - Curated word definition from Wiktionary
+ - Support offline lookup (wiktionary and others)
 
 TODO:
 
- - Support additional sources of definition (like WordReference, or Google Translate)
- - Support offline lookup (using the wiktionary dump, or other sources)
+ - Support long-text translation (using Google Translate)
+ - Fuzzy search
