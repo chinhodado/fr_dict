@@ -49,10 +49,6 @@ public class ChatHeadService extends Service {
     BaseDictionarySqliteDatabase wiktionaryDb;
     BaseDictionarySqliteDatabase oxfordHachetteDb;
 
-    enum Dictionary {
-        Wiktionary, OxfordHachette
-    }
-
     /**
      * Event handler for looking up the word that was just copied into the clipboard
      */

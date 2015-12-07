@@ -81,10 +81,10 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
                         param_remove.x = x_cord_remove;
                         param_remove.y = y_cord_remove;
 
-                        service.windowManager.updateViewLayout(service.removeView, param_remove);
+                        ChatHeadService.windowManager.updateViewLayout(service.removeView, param_remove);
                     }
 
-                    service.windowManager.updateViewLayout(service.chatheadView, layoutParams);
+                    ChatHeadService.windowManager.updateViewLayout(service.chatheadView, layoutParams);
                     break;
                 }
                 else {
@@ -99,14 +99,14 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
                     param_remove.x = x_cord_remove;
                     param_remove.y = y_cord_remove;
 
-                    service.windowManager.updateViewLayout(service.removeView, param_remove);
+                    ChatHeadService.windowManager.updateViewLayout(service.removeView, param_remove);
                 }
             }
 
             layoutParams.x = x_cord_Destination;
             layoutParams.y = y_cord_Destination;
 
-            service.windowManager.updateViewLayout(service.chatheadView, layoutParams);
+            ChatHeadService.windowManager.updateViewLayout(service.chatheadView, layoutParams);
             break;
         case MotionEvent.ACTION_UP:
             isLongclick = false;
@@ -179,6 +179,6 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
         param_remove.x = x_cord_remove;
         param_remove.y = y_cord_remove;
 
-        service.windowManager.updateViewLayout(service.removeView, param_remove);
+        ChatHeadService.windowManager.updateViewLayout(service.removeView, param_remove);
     }
 }
