@@ -22,8 +22,10 @@ import android.webkit.WebView;
 
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     WebView webView;
+    String tableName;
     String word;
     Context context;
+    SQLiteDatabase db;
     boolean isOnline;
     boolean exceptionOccurred = false;
 
@@ -38,10 +40,12 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         backSectionsMap.put("Pronunciation", false);
     }
 
-    public SearchWordAsyncTask(Context context, WebView webView, String word) {
+    public SearchWordAsyncTask(Context context, WebView webView, SQLiteDatabase db, String word) {
         this.context = context;
         this.webView = webView;
+        this.tableName = tableName;
         this.word = word;
+        this.db = db;
     }
 
     @Override
@@ -89,9 +93,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     private String getWordDefinitionOffline() {
         String definition;
         try {
-            DatabaseQuerier dbq = new DatabaseQuerier(context);
-            SQLiteDatabase db = dbq.getDatabase();
-            Cursor cursor = db.rawQuery("select definition from word where word = ? collate nocase", new String[] { word });
+            Cursor cursor = db.rawQuery("select definition from word where name = ? collate nocase", new String[] { word });
 
             // assuming we always have 1 result...
             cursor.moveToFirst();

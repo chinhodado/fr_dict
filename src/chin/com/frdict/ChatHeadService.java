@@ -28,6 +28,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
+import chin.com.frdict.database.WiktionarySqliteDatabase;
 
 public class ChatHeadService extends Service {
     public static WindowManager windowManager;
@@ -62,7 +64,8 @@ public class ChatHeadService extends Service {
                     mainView.setVisibility(View.VISIBLE);
                     mainViewVisible = true;
                 }
-                new SearchWordAsyncTask(ChatHeadService.this, webView, str).execute();
+                new SearchWordAsyncTask(ChatHeadService.this, webView, WiktionarySqliteDatabase.getDatabase(), str).execute();
+                new SearchWordAsyncTask(ChatHeadService.this, webView2, OxfordHachetteSqliteDatabase.getDatabase(), str).execute();
                 edt.setText(str);
             }
         }
@@ -76,6 +79,9 @@ public class ChatHeadService extends Service {
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        WiktionarySqliteDatabase.InitializeDatabase(this);
+        OxfordHachetteSqliteDatabase.InitializeDatabase(this);
 
         // the remove view
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
@@ -123,7 +129,8 @@ public class ChatHeadService extends Service {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
-                        new SearchWordAsyncTask(ChatHeadService.this, webView, str).execute();
+                        new SearchWordAsyncTask(ChatHeadService.this, webView, WiktionarySqliteDatabase.getDatabase(), str).execute();
+                        new SearchWordAsyncTask(ChatHeadService.this, webView2, OxfordHachetteSqliteDatabase.getDatabase(), str).execute();
                     }
 
                     // hide the keyboard
@@ -142,7 +149,8 @@ public class ChatHeadService extends Service {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    new SearchWordAsyncTask(ChatHeadService.this, webView, str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, webView, WiktionarySqliteDatabase.getDatabase(), str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, webView2, OxfordHachetteSqliteDatabase.getDatabase(), str).execute();
                 }
 
                 // hide the keyboard
