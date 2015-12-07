@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:gravity="bottom"
     android:padding="5dp"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="#00000000" >
 
     <View
         android:id="@+id/dialog_top"
