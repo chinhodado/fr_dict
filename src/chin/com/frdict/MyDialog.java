@@ -1,5 +1,10 @@
 package chin.com.frdict;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +46,22 @@ public class MyDialog extends Activity {
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 Toast.makeText(myDialog, description, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onLoadResource(WebView view, String url){
+                Pattern pattern = Pattern.compile("http(s?)://en\\.(m\\.)?wiktionary\\.org/wiki/(.*)#French");
+                Matcher matcher = pattern.matcher(url);
+                if(matcher.find()){
+                    String word = matcher.group(3);
+                    try {
+                        word = URLDecoder.decode(word, "UTF-8");
+                        new SearchWordAsyncTask(MyDialog.this, MyDialog.webView2, ChatHeadService.oxfordHachetteDb, word, false).execute();
+                        MyDialog.myDialog.edt.setText(word);
+                    } catch (UnsupportedEncodingException e) {
+                        Log.w("frdict", "Error decoding word in URL");
+                    }
+                }
             }
         });
         webView2.setWebViewClient(new WebViewClient() {
