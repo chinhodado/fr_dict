@@ -5,6 +5,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class BaseDictionarySqliteDatabase extends SQLiteAssetHelper{
     protected SQLiteDatabase db;
@@ -21,19 +22,19 @@ public class BaseDictionarySqliteDatabase extends SQLiteAssetHelper{
     }
 
     public String getWordDefinition(String name) {
-        String definition;
+        String definition = null;
         try {
             Cursor cursor = db.rawQuery("select definition from word where name = ? collate nocase", new String[] { name });
 
             if (cursor.getCount() == 0) {
-                return "Word not found: " + name;
+                return null;
             }
 
             cursor.moveToFirst();
             definition = cursor.getString(cursor.getColumnIndex("definition"));
         }
         catch (Exception e) {
-            definition = "Something went wrong when querying offline database.";
+            Log.e("frdict", "Something went wrong when querying offline database.");
             e.printStackTrace();
         }
 

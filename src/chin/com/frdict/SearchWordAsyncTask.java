@@ -98,7 +98,11 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     }
 
     private String getWordDefinitionOffline() {
-        return db.getWordDefinition(word);
+        String definition = db.getWordDefinition(word);
+        if (definition == null) {
+            definition = "Word not found: " + word;
+        }
+        return definition;
     }
 
     private String getWordDefinitionOnline() {

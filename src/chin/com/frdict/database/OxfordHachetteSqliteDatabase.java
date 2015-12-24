@@ -28,6 +28,18 @@ public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
     @Override
     public String getWordDefinition(String name) {
         String definition = super.getWordDefinition(name);
+        if (definition == null) {
+            String definition1 = super.getWordDefinition(name + " (1)");
+            if (definition1 != null) {
+                definition = definition1;
+                String definition2 = super.getWordDefinition(name + " (2)");
+                if (definition2 != null) {
+                    definition += definition2;
+                }
+            }
+        }
+        if (definition == null) return null;
+
         definition = "<style>" + context.getString(R.string.oxford_hachette_css) + "</style>" + definition;
         return definition;
     }
