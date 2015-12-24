@@ -25,9 +25,11 @@ public class BaseDictionarySqliteDatabase extends SQLiteAssetHelper{
         try {
             Cursor cursor = db.rawQuery("select definition from word where name = ? collate nocase", new String[] { name });
 
-            // assuming we always have 1 result...
-            cursor.moveToFirst();
+            if (cursor.getCount() == 0) {
+                return "Word not found: " + name;
+            }
 
+            cursor.moveToFirst();
             definition = cursor.getString(cursor.getColumnIndex("definition"));
         }
         catch (Exception e) {
