@@ -1,19 +1,15 @@
 package chin.com.frdict.database;
 
-import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class BaseDictionarySqliteDatabase extends SQLiteAssetHelper{
+public class BaseDictionarySqliteDatabase {
     protected SQLiteDatabase db;
     protected static Context context;
 
     protected BaseDictionarySqliteDatabase(Context context, String dbName, int dbVersion) {
-        super(context, dbName, null, dbVersion);
-        setForcedUpgrade();
         BaseDictionarySqliteDatabase.context = context;
     }
 

@@ -16,3 +16,7 @@ TODO:
 
  - Support long-text translation (using Google Translate)
  - Fuzzy search
+
+ Note:
+
+ Put the dictionary files into `<external storage>/frdicts/`

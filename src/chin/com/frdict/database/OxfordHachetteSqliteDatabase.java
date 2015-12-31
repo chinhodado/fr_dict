@@ -1,6 +1,8 @@
 package chin.com.frdict.database;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import chin.com.frdict.R;
 
 /**
@@ -8,7 +10,7 @@ import chin.com.frdict.R;
  * @author Chin
  */
 public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
-    private static String DATABASE_NAME = "oxford hachette v3.db";
+    private static String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath() + "/frdicts/oxford_hachette_v3.db";
     public static int DATABASE_VERSION = 20151206;
     protected static BaseDictionarySqliteDatabase instance;
 
@@ -19,7 +21,7 @@ public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
     public static BaseDictionarySqliteDatabase getInstance(Context context) {
         if (instance == null) {
             OxfordHachetteSqliteDatabase dbHelper = new OxfordHachetteSqliteDatabase(context);
-            dbHelper.db = dbHelper.getReadableDatabase();
+            dbHelper.db = SQLiteDatabase.openDatabase(DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
             instance = dbHelper;
         }
         return instance;
