@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
@@ -37,7 +36,7 @@ public class ChatHeadService extends Service {
     public static BaseDictionarySqliteDatabase oxfordHachetteDb;
 
     // word list
-    public static ArrayAdapter<String> adapter;
+    public static AccentInsensitiveFilterArrayAdapter adapter;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -78,7 +77,7 @@ public class ChatHeadService extends Service {
         wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
         List<String> wordList = wiktionaryDb.getWordList();
-        adapter = new ArrayAdapter<String>(this, R.layout.autocomplete_dropdown_item, wordList);
+        adapter = new AccentInsensitiveFilterArrayAdapter(this, R.layout.autocomplete_dropdown_item, wordList);
 
         // the remove view
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
