@@ -1,5 +1,7 @@
 package chin.com.frdict;
 
+import java.util.List;
+
 import android.app.Service;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
@@ -32,6 +35,9 @@ public class ChatHeadService extends Service {
     // dictionaries
     public static BaseDictionarySqliteDatabase wiktionaryDb;
     public static BaseDictionarySqliteDatabase oxfordHachetteDb;
+
+    // word list
+    public static ArrayAdapter<String> adapter;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -71,6 +77,8 @@ public class ChatHeadService extends Service {
 
         wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
+        List<String> wordList = wiktionaryDb.getWordList();
+        adapter = new ArrayAdapter<String>(this, R.layout.autocomplete_dropdown_item, wordList);
 
         // the remove view
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
@@ -94,7 +102,6 @@ public class ChatHeadService extends Service {
         windowManager.addView(chatheadView, chatheadParams);
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
-//        chatheadView.bringToFront();
 
         // automatically search word when copy to clipboard
         clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);

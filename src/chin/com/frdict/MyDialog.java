@@ -18,7 +18,9 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -28,7 +30,7 @@ public class MyDialog extends Activity {
     public static boolean active = false;
     public static MyDialog myDialog;
     public static WebView webView, webView2;
-    public EditText edt;
+    public AutoCompleteTextView edt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,8 @@ public class MyDialog extends Activity {
         });
 
         // edit text
-        edt = (EditText) findViewById(R.id.dialog_edt);
+        edt = (AutoCompleteTextView) findViewById(R.id.dialog_edt);
+        edt.setAdapter(ChatHeadService.adapter);
         edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -91,6 +94,14 @@ public class MyDialog extends Activity {
                     return true;
                 }
                 return false;
+            }
+        });
+        edt.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String name = (String)parent.getItemAtPosition(position);
+                new SearchWordAsyncTask(MyDialog.this, MyDialog.webView, ChatHeadService.wiktionaryDb, name, true).execute();
+                new SearchWordAsyncTask(MyDialog.this, MyDialog.webView2, ChatHeadService.oxfordHachetteDb, name, false).execute();
             }
         });
 

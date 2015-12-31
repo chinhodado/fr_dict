@@ -19,14 +19,15 @@
         android:layout_height="wrap_content" 
         android:background="#FFFFFF">
         
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/dialog_edt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textNoSuggestions"
             android:imeOptions="actionSearch"
-            android:textColor="#000000">
-        </EditText>
+            android:textColor="#000000"
+            android:completionThreshold="1">
+        </AutoCompleteTextView>
 
         <ImageView
             android:id="@+id/imageView_search"
