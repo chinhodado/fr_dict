@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import chin.com.frdict.activity.DictionaryActivity;
 
 public class ChatheadOnTouchListener implements View.OnTouchListener {
     long time_start = 0, time_end = 0;
@@ -118,15 +119,15 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
             handler_longClick.removeCallbacks(runnable_longClick);
 
             if (inBounded) {
-                if (MyDialog.myDialog != null) {
+                if (DictionaryActivity.instance != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        MyDialog.myDialog.finishAndRemoveTask();
+                        DictionaryActivity.instance.finishAndRemoveTask();
                     }
                     else {
                         // This will leave the task in the task list
                         // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
                         // and I don't own any pre-lollipop device anyway...
-                        MyDialog.myDialog.finish();
+                        DictionaryActivity.instance.finish();
                     }
                 }
 
@@ -171,10 +172,10 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
 
     private void chathead_click() {
         Log.i(Utility.LogTag, "chathead_click()");
-        if (MyDialog.active) {
-            MyDialog.myDialog.moveTaskToBack(true);
+        if (DictionaryActivity.active) {
+            DictionaryActivity.instance.moveTaskToBack(true);
         } else {
-            Intent it = new Intent(service, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            Intent it = new Intent(service, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             service.startActivity(it);
         }
     }

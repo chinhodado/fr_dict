@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <color name="dark">#000000</color>
-    <color name="white">#ffffff</color>
-    
-    <color name="red">#ff0000</color>
-      
-    <color name="yellow">#FCF2C5</color>
-    
-    <color name="blue">#2d5d88</color>
-    <color name="blue_A2E5F5">#A2E5F5</color>
-    
+    <color name="background_tab_pressed">#6633B5E5</color>
+    <color name="red">#FFC74B46</color>
+    <color name="green">#FF96AA39</color>
+    <color name="orange">#FFF4842D</color>
+    <color name="blue">#FF3F9FE0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="background_holo_light">#fff3f3f3</color>
 </resources>

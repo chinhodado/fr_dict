@@ -1,4 +1,4 @@
-package chin.com.frdict;
+package chin.com.frdict.activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
+import chin.com.frdict.ChatHeadService;
 
 /**
  * Just an activity to start the service from the launcher, and do nothing more

@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
@@ -53,15 +54,15 @@ public class ChatHeadService extends Service {
                 	str = str.replace("s'", "").replace("s’", "");
                 }
                 // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
-                if (!MyDialog.active) {
-                    Intent intent = new Intent(ChatHeadService.this, MyDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                if (!DictionaryActivity.active) {
+                    Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra("FromClipboard", str);
                     startActivity(intent);
                 }
                 else {
-                    new SearchWordAsyncTask(ChatHeadService.this, MyDialog.webView, wiktionaryDb, str, true).execute();
-                    new SearchWordAsyncTask(ChatHeadService.this, MyDialog.webView2, oxfordHachetteDb, str, false).execute();
-                    MyDialog.myDialog.edt.setText(str);
+                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewWiktionary, wiktionaryDb, str, true).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewOxfordHachette, oxfordHachetteDb, str, false).execute();
+                    DictionaryActivity.instance.edt.setText(str);
                 }
             }
         }
