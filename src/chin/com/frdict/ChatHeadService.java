@@ -78,23 +78,25 @@ public class ChatHeadService extends Service {
         ChatHeadService.wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         ChatHeadService.oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
 
-        Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is initializing", Toast.LENGTH_SHORT).show();
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                Log.i("frdict", "Start getting word list");
-                List<String> wordList = wiktionaryDb.getWordList();
-                Log.i("frdict", "End getting word list, start creating adapter");
-                adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList);
-                Log.i("frdict", "End creating adapter");
-                return null;
-            }
+        if (adapter == null) {
+            Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is initializing", Toast.LENGTH_SHORT).show();
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    Log.i("frdict", "Start getting word list");
+                    List<String> wordList = wiktionaryDb.getWordList();
+                    Log.i("frdict", "End getting word list, start creating adapter");
+                    adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList);
+                    Log.i("frdict", "End creating adapter");
+                    return null;
+                }
 
-            @Override
-            protected void onPostExecute(Void param) {
-                Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
-            }
-        }.execute();
+                @Override
+                protected void onPostExecute(Void param) {
+                    Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
+                }
+            }.execute();
+        }
 
         // the remove view
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
