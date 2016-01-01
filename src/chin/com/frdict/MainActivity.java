@@ -3,6 +3,9 @@ package chin.com.frdict;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -11,6 +14,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -18,7 +22,6 @@ import android.widget.Toast;
  * @author Chin
  */
 public class MainActivity extends Activity {
-    static boolean serviceRegistered = false;
     static final int OVERLAY_PERMISSION_REQ_CODE = 128;
     static final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 256;
 
@@ -39,11 +42,7 @@ public class MainActivity extends Activity {
         }
         else {
             // no need to worry about pesky permission stuffs
-            // start the chat head service if it's not started already
-            if (!serviceRegistered) {
-                startService(new Intent(MainActivity.this, ChatHeadService.class));
-                serviceRegistered = true;
-            }
+            startService();
         }
 
         // immediately closes itself
@@ -57,10 +56,7 @@ public class MainActivity extends Activity {
             ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE }, EXTERNAL_STORAGE_PERMISSION_REQ_CODE);
         }
         else {
-            if (!serviceRegistered) {
-                startService(new Intent(MainActivity.this, ChatHeadService.class));
-                serviceRegistered = true;
-            }
+            startService();
         }
     }
 
@@ -71,11 +67,7 @@ public class MainActivity extends Activity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    // start the chat head service if it's not started already
-                    if (!serviceRegistered) {
-                        startService(new Intent(MainActivity.this, ChatHeadService.class));
-                        serviceRegistered = true;
-                    }
+                    startService();
                 } else {
                     // permission denied, boo!
                     Toast.makeText(this, "No permission, no dictionary for you", Toast.LENGTH_SHORT).show();
@@ -85,6 +77,26 @@ public class MainActivity extends Activity {
             }
             default:
                 break;
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void startService() {
+        if (!isMyServiceRunning(ChatHeadService.class)) {
+            Log.i("frdict", "Service is not running, starting service");
+            startService(new Intent(MainActivity.this, ChatHeadService.class));
+        }
+        else {
+            Log.i("frdict", "Service is already running");
         }
     }
 }

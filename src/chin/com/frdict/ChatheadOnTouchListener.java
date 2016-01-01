@@ -131,7 +131,6 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
                 }
 
                 service.stopSelf();
-                MainActivity.serviceRegistered = false;
                 inBounded = false;
                 break;
             }
