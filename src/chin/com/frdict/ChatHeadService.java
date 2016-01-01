@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
@@ -76,8 +78,23 @@ public class ChatHeadService extends Service {
 
         wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
-        List<String> wordList = wiktionaryDb.getWordList();
-        adapter = new AccentInsensitiveFilterArrayAdapter(this, R.layout.autocomplete_dropdown_item, wordList);
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                Log.i("frdict", "Start getting word list");
+                List<String> wordList = wiktionaryDb.getWordList();
+                Log.i("frdict", "End getting word list, start creating adapter");
+                adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList);
+                Log.i("frdict", "End creating adapter");
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void param) {
+                Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
+            }
+        }.execute();
 
         // the remove view
         removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);

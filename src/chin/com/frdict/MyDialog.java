@@ -18,6 +18,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
@@ -75,7 +76,9 @@ public class MyDialog extends Activity {
 
         // edit text
         edt = (AutoCompleteTextView) findViewById(R.id.dialog_edt);
-        edt.setAdapter(ChatHeadService.adapter);
+        if (ChatHeadService.adapter != null) {
+            edt.setAdapter(ChatHeadService.adapter);
+        }
         edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -165,6 +168,16 @@ public class MyDialog extends Activity {
         Log.i(Utility.LogTag, "MyDialog onResume()");
         super.onResume();
         active = true;
+
+        if (ChatHeadService.adapter == null) {
+            Toast.makeText(this, "AutoCompleteTextView is not ready yet", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Adapter adapter = edt.getAdapter();
+            if (adapter == null) {
+                edt.setAdapter(ChatHeadService.adapter);
+            }
+        }
 
         processIntent();
     }
