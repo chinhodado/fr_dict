@@ -16,7 +16,9 @@ import com.chin.common.Util;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
+import android.widget.ScrollView;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
@@ -75,6 +77,11 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         else {
             displayWordOffline(html);
         }
+
+        // invalidate the parent ScrollView so that its height is reset and scroll it to the top
+        ScrollView scrollView = (ScrollView)(webView.getParent());
+        scrollView.invalidate();
+        scrollView.fullScroll(View.FOCUS_UP);
     }
 
     private boolean isSubheaders(Element elem) {
