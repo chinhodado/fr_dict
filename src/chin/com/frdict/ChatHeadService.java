@@ -75,9 +75,8 @@ public class ChatHeadService extends Service {
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-
-        wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
-        oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
+        ChatHeadService.wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
+        ChatHeadService.oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
 
         new AsyncTask<Void, Void, Void>() {
             @Override
