@@ -78,6 +78,7 @@ public class ChatHeadService extends Service {
         ChatHeadService.wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         ChatHeadService.oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
 
+        Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is initializing", Toast.LENGTH_SHORT).show();
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
