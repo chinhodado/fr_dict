@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package chin.com.frdict;
+package chin.com.frdict.tab;
 
 import java.util.Locale;
 
@@ -40,6 +40,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import chin.com.frdict.R;
 
 public class PagerSlidingTabStrip extends HorizontalScrollView {
 

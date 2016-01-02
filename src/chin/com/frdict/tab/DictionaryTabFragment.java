@@ -1,0 +1,87 @@
+package chin.com.frdict.tab;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+import chin.com.frdict.ChatHeadService;
+import chin.com.frdict.R;
+import chin.com.frdict.SearchWordAsyncTask;
+import chin.com.frdict.activity.DictionaryActivity;
+import chin.com.frdict.activity.DictionaryActivity.Dictionary;
+
+public class DictionaryTabFragment extends Fragment {
+    private static final String TYPE = "TYPE";
+    Dictionary type;
+
+    public static DictionaryTabFragment newInstance(Dictionary type) {
+        DictionaryTabFragment f = new DictionaryTabFragment();
+        Bundle b = new Bundle();
+        b.putSerializable(TYPE, type);
+        f.setArguments(b);
+        return f;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        type = (Dictionary) getArguments().getSerializable(TYPE);
+        setRetainInstance(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_dict_tab, container, false);
+
+        // web views
+        WebViewClient client = null;
+        if (type == Dictionary.Wiktionary) {
+            DictionaryActivity.webViewWiktionary = (WebView) view.findViewById(R.id.webView_dict);
+            client = new WebViewClient() {
+                @Override
+                public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                    Toast.makeText(DictionaryActivity.instance, description, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onLoadResource(WebView view, String url){
+                    Pattern pattern = Pattern.compile("http(s?)://en\\.(m\\.)?wiktionary\\.org/wiki/(.*)#French");
+                    Matcher matcher = pattern.matcher(url);
+                    if(matcher.find()){
+                        String word = matcher.group(3);
+                        try {
+                            word = URLDecoder.decode(word, "UTF-8");
+                            new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word, false).execute();
+                            DictionaryActivity.instance.edt.setText(word);
+                        } catch (UnsupportedEncodingException e) {
+                            Log.w("frdict", "Error decoding word in URL");
+                        }
+                    }
+                }
+            };
+            DictionaryActivity.webViewWiktionary.setWebViewClient(client);
+        }
+        else {
+            DictionaryActivity.webViewOxfordHachette = (WebView) view.findViewById(R.id.webView_dict);
+            client = new WebViewClient() {
+                @Override
+                public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                    Toast.makeText(DictionaryActivity.instance, description, Toast.LENGTH_SHORT).show();
+                }
+            };
+            DictionaryActivity.webViewOxfordHachette.setWebViewClient(client);
+        }
+
+        return view;
+    }
+}
