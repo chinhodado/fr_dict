@@ -105,11 +105,26 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // invisible top section
-        View top = (View) findViewById(R.id.dialog_top);
+        final View top = (View) findViewById(R.id.dialog_top);
         top.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 moveTaskToBack(true);
+            }
+        });
+
+        // fullscreen image
+        final ImageView fullscreenImg = (ImageView) findViewById(R.id.imageView_fullscreen);
+        fullscreenImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int visibility = top.getVisibility();
+                if (visibility == View.GONE) {
+                    top.setVisibility(View.VISIBLE);
+                }
+                else if (visibility == View.VISIBLE) {
+                    top.setVisibility(View.GONE);
+                }
             }
         });
 

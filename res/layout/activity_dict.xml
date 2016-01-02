@@ -23,20 +23,28 @@
             android:id="@+id/dialog_edt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textNoSuggestions"
+            android:layout_toLeftOf="@+id/imageView_search"
+            android:completionThreshold="1"
             android:imeOptions="actionSearch"
-            android:textColor="#000000"
-            android:completionThreshold="1">
+            android:inputType="textNoSuggestions"
+            android:textColor="#000000">
         </AutoCompleteTextView>
-
+        
         <ImageView
             android:id="@+id/imageView_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/dialog_edt"
-            android:layout_alignParentRight="true"
+            android:layout_toLeftOf="@+id/imageView_fullscreen"
             android:src="@android:drawable/ic_search_category_default" />
     
+        <ImageView
+            android:id="@+id/imageView_fullscreen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/dialog_edt"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_media_fullscreen" />
     </RelativeLayout>
     
     <LinearLayout
