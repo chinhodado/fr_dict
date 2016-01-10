@@ -25,4 +25,16 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
         }
         return instance;
     }
+
+    @Override
+    public String getWordDefinition(String name) {
+        String definition = super.getWordDefinition(name);
+        if (definition != null) {
+            String css = "<style> a { color: rgba(54, 95, 145, 1); } </style>";
+            // this is just a heuristic and won't be accurate in all cases
+            definition = definition.replaceAll("<i>(\\w+)</i>", "<a href='frdict://search\\?word=$1'><i>$1</i></a>");
+            definition = css + definition;
+        }
+        return definition;
+    }
 }

@@ -68,6 +68,34 @@ public class DictionaryTabFragment extends Fragment {
                         }
                     }
                 }
+
+                /**
+                 * Handle our own protocol when clicking on such a link in the WebView
+                 * TODO: implement a system-wide intent filter for the custom protocol?
+                 */
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    if (url.startsWith("frdict://")) {
+                        Pattern pattern = Pattern.compile("frdict://search\\?word=(.*)");
+                        Matcher matcher = pattern.matcher(url);
+                        if(matcher.find()){
+                            try {
+                                String word = matcher.group(1);
+                                word = URLDecoder.decode(word, "UTF-8");
+                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word, false).execute();
+                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word, false).execute();
+                                DictionaryActivity.instance.edt.setText(word);
+                            }
+                            catch (UnsupportedEncodingException e) {
+                                Log.w("frdict", "Error decoding word in URL");
+                            }
+                        }
+                        return true;
+                    }
+                    else {
+                        return super.shouldOverrideUrlLoading(view, url);
+                    }
+                }
             };
             DictionaryActivity.webViewWiktionary.setWebViewClient(client);
         }
