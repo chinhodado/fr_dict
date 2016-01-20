@@ -63,9 +63,9 @@ public class DictionaryActivity extends FragmentActivity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
-                        new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str, true)
+                        new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str)
                                 .execute();
-                        new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str, false)
+                        new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str)
                                 .execute();
                     }
 
@@ -81,8 +81,8 @@ public class DictionaryActivity extends FragmentActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name = (String)parent.getItemAtPosition(position);
-                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, name, true).execute();
-                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, name, false).execute();
+                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, name).execute();
+                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, name).execute();
             }
         });
 
@@ -93,8 +93,8 @@ public class DictionaryActivity extends FragmentActivity {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str, true).execute();
-                    new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str, false)
+                    new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str).execute();
+                    new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str)
                             .execute();
                 }
 
@@ -169,8 +169,8 @@ public class DictionaryActivity extends FragmentActivity {
         if (bundle != null) {
             String str = bundle.getString("FromClipboard");
             if (str != null && !str.equals("")) {
-                new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str, true).execute();
-                new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str, false)
+                new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str).execute();
+                new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str)
                         .execute();
                 edt.setText(str);
             }

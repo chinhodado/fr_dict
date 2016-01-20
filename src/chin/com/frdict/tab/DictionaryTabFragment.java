@@ -61,7 +61,7 @@ public class DictionaryTabFragment extends Fragment {
                         String word = matcher.group(3);
                         try {
                             word = URLDecoder.decode(word, "UTF-8");
-                            new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word, false).execute();
+                            new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).execute();
                             DictionaryActivity.instance.edt.setText(word);
                         } catch (UnsupportedEncodingException e) {
                             Log.w("frdict", "Error decoding word in URL");
@@ -82,8 +82,8 @@ public class DictionaryTabFragment extends Fragment {
                             try {
                                 String word = matcher.group(1);
                                 word = URLDecoder.decode(word, "UTF-8");
-                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word, false).execute();
-                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word, false).execute();
+                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).execute();
+                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).execute();
                                 DictionaryActivity.instance.edt.setText(word);
                             }
                             catch (UnsupportedEncodingException e) {

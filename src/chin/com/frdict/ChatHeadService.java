@@ -60,8 +60,8 @@ public class ChatHeadService extends Service {
                     startActivity(intent);
                 }
                 else {
-                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewWiktionary, wiktionaryDb, str, true).execute();
-                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewOxfordHachette, oxfordHachetteDb, str, false).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewWiktionary, wiktionaryDb, str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewOxfordHachette, oxfordHachetteDb, str).execute();
                     DictionaryActivity.instance.edt.setText(str);
                 }
             }
