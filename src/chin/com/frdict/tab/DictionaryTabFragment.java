@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -61,7 +62,7 @@ public class DictionaryTabFragment extends Fragment {
                         String word = matcher.group(3);
                         try {
                             word = URLDecoder.decode(word, "UTF-8");
-                            new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).execute();
+                            new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                             DictionaryActivity.instance.edt.setText(word);
                         } catch (UnsupportedEncodingException e) {
                             Log.w("frdict", "Error decoding word in URL");
@@ -82,8 +83,8 @@ public class DictionaryTabFragment extends Fragment {
                             try {
                                 String word = matcher.group(1);
                                 word = URLDecoder.decode(word, "UTF-8");
-                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).execute();
-                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).execute();
+                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                                 DictionaryActivity.instance.edt.setText(word);
                             }
                             catch (UnsupportedEncodingException e) {

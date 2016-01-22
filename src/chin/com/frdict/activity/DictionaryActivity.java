@@ -2,6 +2,7 @@ package chin.com.frdict.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -64,9 +65,9 @@ public class DictionaryActivity extends FragmentActivity {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
                         new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str)
-                                .execute();
+                                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str)
-                                .execute();
+                                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
 
                     // hide the keyboard
@@ -81,8 +82,8 @@ public class DictionaryActivity extends FragmentActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name = (String)parent.getItemAtPosition(position);
-                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, name).execute();
-                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, name).execute();
+                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, name).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new SearchWordAsyncTask(DictionaryActivity.this, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, name).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
 
@@ -93,9 +94,9 @@ public class DictionaryActivity extends FragmentActivity {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str).execute();
+                    new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str)
-                            .execute();
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
 
                 // hide the keyboard
@@ -169,9 +170,9 @@ public class DictionaryActivity extends FragmentActivity {
         if (bundle != null) {
             String str = bundle.getString("FromClipboard");
             if (str != null && !str.equals("")) {
-                new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str).execute();
+                new SearchWordAsyncTask(DictionaryActivity.this, webViewWiktionary, ChatHeadService.wiktionaryDb, str).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 new SearchWordAsyncTask(DictionaryActivity.this, webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, str)
-                        .execute();
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 edt.setText(str);
             }
         }

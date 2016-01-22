@@ -60,8 +60,8 @@ public class ChatHeadService extends Service {
                     startActivity(intent);
                 }
                 else {
-                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewWiktionary, wiktionaryDb, str).execute();
-                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewOxfordHachette, oxfordHachetteDb, str).execute();
+                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewWiktionary, wiktionaryDb, str).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new SearchWordAsyncTask(ChatHeadService.this, DictionaryActivity.webViewOxfordHachette, oxfordHachetteDb, str).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     DictionaryActivity.instance.edt.setText(str);
                 }
             }
@@ -96,7 +96,7 @@ public class ChatHeadService extends Service {
                 protected void onPostExecute(Void param) {
                     Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
                 }
-            }.execute();
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
         // the remove view
