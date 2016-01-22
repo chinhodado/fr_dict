@@ -127,6 +127,11 @@ public class ChatHeadService extends Service {
         regPrimaryClipChanged();
     }
 
+    public static void searchWord(String word) {
+        new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

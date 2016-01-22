@@ -83,8 +83,7 @@ public class DictionaryTabFragment extends Fragment {
                             try {
                                 String word = matcher.group(1);
                                 word = URLDecoder.decode(word, "UTF-8");
-                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                                new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                ChatHeadService.searchWord(word);
                                 DictionaryActivity.instance.edt.setText(word);
                             }
                             catch (UnsupportedEncodingException e) {
