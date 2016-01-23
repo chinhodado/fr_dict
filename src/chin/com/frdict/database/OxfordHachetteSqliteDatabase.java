@@ -19,7 +19,7 @@ public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
     protected static BaseDictionarySqliteDatabase instance;
 
     private OxfordHachetteSqliteDatabase(Context context) {
-        super(context, DATABASE_NAME, DATABASE_VERSION);
+        super(context, "Oxford Hachette FR-EN");
     }
 
     public static BaseDictionarySqliteDatabase getInstance(Context context) {

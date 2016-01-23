@@ -12,9 +12,11 @@ import android.util.Log;
 public class BaseDictionarySqliteDatabase {
     protected SQLiteDatabase db;
     protected static Context context;
+    public String dictName;
 
-    protected BaseDictionarySqliteDatabase(Context context, String dbName, int dbVersion) {
+    protected BaseDictionarySqliteDatabase(Context context, String dictName) {
         BaseDictionarySqliteDatabase.context = context;
+        this.dictName = dictName;
     }
 
     public SQLiteDatabase getBackendDatabase() {
@@ -70,8 +72,8 @@ public class BaseDictionarySqliteDatabase {
         }
         long end = System.currentTimeMillis();
         long duration = (end - start);
-        Log.i("frdict", "sqlite getting word list time: " + duration + "ms");
-        Log.i("frdict", "Num entries: " + wordList.size());
+        Log.i("frdict", dictName + " - getting word list time: " + duration + "ms");
+        Log.i("frdict", dictName + " - num entries: " + numEntries);
         return wordList;
     }
 }

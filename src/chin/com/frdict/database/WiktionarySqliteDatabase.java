@@ -18,7 +18,7 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
     protected static BaseDictionarySqliteDatabase instance;
 
     private WiktionarySqliteDatabase(Context context) {
-        super(context, DATABASE_NAME, DATABASE_VERSION);
+        super(context, "Wiktionary FR-EN");
     }
 
     public static BaseDictionarySqliteDatabase getInstance(Context context) {
