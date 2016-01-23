@@ -42,24 +42,36 @@ public class BaseDictionarySqliteDatabase {
     }
 
     public List<String> getWordList() {
+        long start = System.currentTimeMillis();
         // here's hoping our database doesn't have too much rows that the count won't fit into an int...
         int numEntries = (int)DatabaseUtils.queryNumEntries(db, "word");
         ArrayList<String> wordList = new ArrayList<String>(numEntries);
         try {
-            Cursor cursor = db.rawQuery("select name from word order by name", null);
-
-            if (cursor.moveToFirst()) {
-                while (cursor.isAfterLast() == false) {
-                    String name = cursor.getString(cursor.getColumnIndex("name"));
-                    wordList.add(name);
-                    cursor.moveToNext();
+            // Split the query into chunks of 10000 each. This avoids the "CursorWindow Window is full" warning and is
+            // a lot faster than getting everything in one go (about three times faster)
+            int chunkSize = 10000;
+            int iterations = (int) Math.ceil((double)numEntries / chunkSize);
+            for (int i = 0; i < iterations; i++) {
+                Cursor cursor = db.rawQuery("select name from word order by name LIMIT " + chunkSize + " OFFSET " + chunkSize * i, null);
+                if (cursor.moveToFirst()) {
+                    int nameColumnIndex = cursor.getColumnIndex("name");
+                    while (cursor.isAfterLast() == false) {
+                        String name = cursor.getString(nameColumnIndex);
+                        wordList.add(name);
+                        cursor.moveToNext();
+                    }
                 }
+                cursor.close();
             }
         }
         catch (Exception e) {
             Log.e("frdict", "Error getting word list.");
             e.printStackTrace();
         }
+        long end = System.currentTimeMillis();
+        long duration = (end - start);
+        Log.i("frdict", "sqlite getting word list time: " + duration + "ms");
+        Log.i("frdict", "Num entries: " + wordList.size());
         return wordList;
     }
 }
