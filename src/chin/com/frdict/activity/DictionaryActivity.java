@@ -179,7 +179,6 @@ public class DictionaryActivity extends FragmentActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        processIntent();
     }
 
     @Override
