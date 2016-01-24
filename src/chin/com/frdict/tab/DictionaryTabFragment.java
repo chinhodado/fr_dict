@@ -127,10 +127,14 @@ public class DictionaryTabFragment extends Fragment {
         Log.i(Utility.LogTag, "DictionaryTabFragment onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
         Activity activity = getActivity();
-        if (activity == null) {
-            return;
+        String word = null;
+        try {
+            word = (String) activity.getIntent().getExtras().getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
         }
-        String word = (String) activity.getIntent().getExtras().getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
+        catch (Exception e) {
+            // activity can be null, or intent can be null, or extra can be null...
+        }
+
         if (word != null) {
             new SearchWordAsyncTask(ChatHeadService.instance, webview, dict, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             DictionaryActivity.instance.edt.setText(word);
