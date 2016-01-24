@@ -164,7 +164,7 @@ public class DictionaryActivity extends FragmentActivity {
     private void processIntent() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            String str = bundle.getString("FromClipboard");
+            String str = bundle.getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
             if (str != null && !str.equals("")) {
                 ChatHeadService.searchWord(str);
                 edt.setText(str);

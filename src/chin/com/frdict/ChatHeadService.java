@@ -41,6 +41,8 @@ public class ChatHeadService extends Service {
     // word list
     public static AccentInsensitiveFilterArrayAdapter adapter;
 
+    public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
+
     /**
      * Event handler for looking up the word that was just copied into the clipboard
      */
@@ -56,7 +58,7 @@ public class ChatHeadService extends Service {
                 // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
                 if (!DictionaryActivity.active) {
                     Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("FromClipboard", str);
+                    intent.putExtra(INTENT_FROM_CLIPBOARD, str);
                     startActivity(intent);
                 }
                 else {

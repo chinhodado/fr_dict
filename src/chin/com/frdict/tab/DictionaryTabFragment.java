@@ -130,7 +130,7 @@ public class DictionaryTabFragment extends Fragment {
         if (activity == null) {
             return;
         }
-        String word = (String) activity.getIntent().getExtras().getString("FromClipboard");
+        String word = (String) activity.getIntent().getExtras().getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
         if (word != null) {
             new SearchWordAsyncTask(ChatHeadService.instance, webview, dict, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             DictionaryActivity.instance.edt.setText(word);
