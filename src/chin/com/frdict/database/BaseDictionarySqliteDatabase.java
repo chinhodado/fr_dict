@@ -7,20 +7,31 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 public class BaseDictionarySqliteDatabase {
     protected SQLiteDatabase db;
     protected static Context context;
     public String dictName;
+    public String databaseFileName;
 
-    protected BaseDictionarySqliteDatabase(Context context, String dictName) {
+    protected BaseDictionarySqliteDatabase(Context context, String dictName, String databaseFileName) {
         BaseDictionarySqliteDatabase.context = context;
         this.dictName = dictName;
+        this.databaseFileName = databaseFileName;
     }
 
     public SQLiteDatabase getBackendDatabase() {
         return db;
+    }
+
+    public String getDatabasePath() {
+        return Environment.getExternalStorageDirectory().getPath() + "/frdicts/" + databaseFileName;
+    }
+
+    public String getDatabaseAlternatePath() {
+        return Environment.getExternalStorageDirectory().getPath() + "/Android/obb/frdicts/" + databaseFileName;
     }
 
     public String getWordDefinition(String name) {

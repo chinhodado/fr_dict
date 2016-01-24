@@ -4,7 +4,6 @@ import java.io.File;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Environment;
 import android.widget.Toast;
 import chin.com.frdict.R;
 
@@ -13,28 +12,26 @@ import chin.com.frdict.R;
  * @author Chin
  */
 public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
-    private static String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath() + "/frdicts/oxford_hachette_v3.db";
-    private static String DATABASE_NAME_2 = Environment.getExternalStorageDirectory().getPath() + "/Android/obb/frdicts/oxford_hachette_v3.db";
     public static int DATABASE_VERSION = 20151206;
     protected static BaseDictionarySqliteDatabase instance;
 
     private OxfordHachetteSqliteDatabase(Context context) {
-        super(context, "Oxford Hachette FR-EN");
+        super(context, "Oxford Hachette FR-EN", "oxford_hachette_v3.db");
     }
 
     public static BaseDictionarySqliteDatabase getInstance(Context context) {
         if (instance == null) {
             OxfordHachetteSqliteDatabase dbHelper = new OxfordHachetteSqliteDatabase(context);
-            File file = new File(DATABASE_NAME);
-            File file2 = new File(DATABASE_NAME_2);
+            File file = new File(dbHelper.getDatabasePath());
+            File file2 = new File(dbHelper.getDatabaseAlternatePath());
             if (file.exists()) {
-                dbHelper.db = SQLiteDatabase.openDatabase(DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
+                dbHelper.db = SQLiteDatabase.openDatabase(dbHelper.getDatabasePath(), null, SQLiteDatabase.OPEN_READONLY);
             }
             else if (file2.exists()) {
-                dbHelper.db = SQLiteDatabase.openDatabase(DATABASE_NAME_2, null, SQLiteDatabase.OPEN_READONLY);
+                dbHelper.db = SQLiteDatabase.openDatabase(dbHelper.getDatabaseAlternatePath(), null, SQLiteDatabase.OPEN_READONLY);
             }
             else {
-                Toast.makeText(context, "oxford_hachette_v3.db not found", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, dbHelper.databaseFileName + " not found", Toast.LENGTH_LONG).show();
                 System.exit(0);
             }
             instance = dbHelper;

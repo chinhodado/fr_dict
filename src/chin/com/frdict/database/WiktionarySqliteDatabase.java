@@ -4,7 +4,6 @@ import java.io.File;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Environment;
 import android.widget.Toast;
 
 /**
@@ -12,28 +11,26 @@ import android.widget.Toast;
  * @author Chin
  */
 public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
-    private static final String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath() + "/frdicts/wiktionary_fren.db";
-    private static final String DATABASE_NAME_2 = Environment.getExternalStorageDirectory().getPath() + "/Android/obb/frdicts/wiktionary_fren.db";
     public static final int DATABASE_VERSION = 20151114;
     protected static BaseDictionarySqliteDatabase instance;
 
     private WiktionarySqliteDatabase(Context context) {
-        super(context, "Wiktionary FR-EN");
+        super(context, "Wiktionary FR-EN", "wiktionary_fren.db");
     }
 
     public static BaseDictionarySqliteDatabase getInstance(Context context) {
         if (instance == null) {
             WiktionarySqliteDatabase dbHelper = new WiktionarySqliteDatabase(context);
-            File file = new File(DATABASE_NAME);
-            File file2 = new File(DATABASE_NAME_2);
+            File file = new File(dbHelper.getDatabasePath());
+            File file2 = new File(dbHelper.getDatabaseAlternatePath());
             if (file.exists()) {
-                dbHelper.db = SQLiteDatabase.openDatabase(DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
+                dbHelper.db = SQLiteDatabase.openDatabase(dbHelper.getDatabasePath(), null, SQLiteDatabase.OPEN_READONLY);
             }
             else if (file2.exists()) {
-                dbHelper.db = SQLiteDatabase.openDatabase(DATABASE_NAME_2, null, SQLiteDatabase.OPEN_READONLY);
+                dbHelper.db = SQLiteDatabase.openDatabase(dbHelper.getDatabaseAlternatePath(), null, SQLiteDatabase.OPEN_READONLY);
             }
             else {
-                Toast.makeText(context, "wiktionary_fren.db not found", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, dbHelper.databaseFileName + " not found", Toast.LENGTH_LONG).show();
                 System.exit(0);
             }
             instance = dbHelper;
