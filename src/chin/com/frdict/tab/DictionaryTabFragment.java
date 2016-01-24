@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,12 +19,16 @@ import android.widget.Toast;
 import chin.com.frdict.ChatHeadService;
 import chin.com.frdict.R;
 import chin.com.frdict.SearchWordAsyncTask;
+import chin.com.frdict.Utility;
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.DictionaryActivity.Dictionary;
+import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 public class DictionaryTabFragment extends Fragment {
     private static final String TYPE = "TYPE";
     Dictionary type;
+    private WebView webview;
+    private BaseDictionarySqliteDatabase dict;
 
     public static DictionaryTabFragment newInstance(Dictionary type) {
         DictionaryTabFragment f = new DictionaryTabFragment();
@@ -48,6 +53,8 @@ public class DictionaryTabFragment extends Fragment {
         WebViewClient client = null;
         if (type == Dictionary.Wiktionary) {
             DictionaryActivity.webViewWiktionary = (WebView) view.findViewById(R.id.webView_dict);
+            webview = DictionaryActivity.webViewWiktionary;
+            dict = ChatHeadService.wiktionaryDb;
             client = new WebViewClient() {
                 @Override
                 public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
@@ -101,6 +108,8 @@ public class DictionaryTabFragment extends Fragment {
         }
         else {
             DictionaryActivity.webViewOxfordHachette = (WebView) view.findViewById(R.id.webView_dict);
+            webview = DictionaryActivity.webViewOxfordHachette;
+            dict = ChatHeadService.oxfordHachetteDb;
             client = new WebViewClient() {
                 @Override
                 public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
@@ -111,5 +120,20 @@ public class DictionaryTabFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        Log.i(Utility.LogTag, "DictionaryTabFragment onActivityCreated()");
+        super.onActivityCreated(savedInstanceState);
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        String word = (String) activity.getIntent().getExtras().getString("FromClipboard");
+        if (word != null) {
+            new SearchWordAsyncTask(ChatHeadService.instance, webview, dict, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            DictionaryActivity.instance.edt.setText(word);
+        }
     }
 }

@@ -44,7 +44,7 @@ public class DictionaryActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(Utility.LogTag, "MyDialog onCreate()");
+        Log.i(Utility.LogTag, "DictionaryActivity onCreate()");
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         instance = DictionaryActivity.this;
@@ -137,7 +137,7 @@ public class DictionaryActivity extends FragmentActivity {
 
     @Override
     protected void onResume() {
-        Log.i(Utility.LogTag, "MyDialog onResume()");
+        Log.i(Utility.LogTag, "DictionaryActivity onResume()");
         super.onResume();
         active = true;
 
@@ -151,7 +151,11 @@ public class DictionaryActivity extends FragmentActivity {
             }
         }
 
-        processIntent();
+        // if the webviews are null, the fragments are not created yet, so we left it to them
+        // to handle the intent
+        if (webViewOxfordHachette != null && webViewWiktionary != null) {
+            processIntent();
+        }
     }
 
     /**
@@ -180,7 +184,7 @@ public class DictionaryActivity extends FragmentActivity {
 
     @Override
     protected void onPause() {
-        Log.i(Utility.LogTag, "MyDialog onPause()");
+        Log.i(Utility.LogTag, "DictionaryActivity onPause()");
         super.onPause();
         active = false;
     }
@@ -188,7 +192,7 @@ public class DictionaryActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(Utility.LogTag, "MyDialog onDestroy()");
+        Log.i(Utility.LogTag, "DictionaryActivity onDestroy()");
         active = false;
     }
 
