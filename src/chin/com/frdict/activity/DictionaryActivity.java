@@ -21,7 +21,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import chin.com.frdict.ChatHeadService;
 import chin.com.frdict.R;
 import chin.com.frdict.Utility;
@@ -142,7 +141,7 @@ public class DictionaryActivity extends FragmentActivity {
         active = true;
 
         if (ChatHeadService.adapter == null) {
-            Toast.makeText(this, "AutoCompleteTextView is not ready yet", Toast.LENGTH_SHORT).show();
+            // AutoCompleteTextView is not ready yet
         }
         else {
             Adapter adapter = edt.getAdapter();
