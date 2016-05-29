@@ -1,6 +1,10 @@
 package chin.com.frdict.database;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
@@ -34,6 +38,16 @@ public class BaseDictionarySqliteDatabase {
         return Environment.getExternalStorageDirectory().getPath() + "/Android/obb/frdicts/" + databaseFileName;
     }
 
+    public String getCachePath() {
+        String prefix = databaseFileName.split("\\.")[0];
+        return Environment.getExternalStorageDirectory().getPath() + "/frdicts/" + prefix + "_allWords.txt";
+    }
+
+    public String getNoAccentCachePath() {
+        String prefix = databaseFileName.split("\\.")[0];
+        return Environment.getExternalStorageDirectory().getPath() + "/frdicts/" + prefix + "_allWordsNoAccent.txt";
+    }
+
     public String getWordDefinition(String name) {
         String definition = null;
         try {
@@ -56,25 +70,41 @@ public class BaseDictionarySqliteDatabase {
 
     public List<String> getWordList() {
         long start = System.currentTimeMillis();
-        // here's hoping our database doesn't have too much rows that the count won't fit into an int...
+        // here's hoping our database doesn't have too many rows that the count won't fit into an int...
         int numEntries = (int)DatabaseUtils.queryNumEntries(db, "word");
-        ArrayList<String> wordList = new ArrayList<String>(numEntries);
+        List<String> wordList = null;
+        String allWords = null;
         try {
-            // Split the query into chunks of 10000 each. This avoids the "CursorWindow Window is full" warning and is
-            // a lot faster than getting everything in one go (about three times faster)
-            int chunkSize = 10000;
-            int iterations = (int) Math.ceil((double)numEntries / chunkSize);
-            for (int i = 0; i < iterations; i++) {
-                Cursor cursor = db.rawQuery("select name from word order by name LIMIT " + chunkSize + " OFFSET " + chunkSize * i, null);
-                if (cursor.moveToFirst()) {
-                    int nameColumnIndex = cursor.getColumnIndex("name");
-                    while (cursor.isAfterLast() == false) {
-                        String name = cursor.getString(nameColumnIndex);
-                        wordList.add(name);
-                        cursor.moveToNext();
+            File file = new File(getCachePath());
+            if (file.exists()) {
+                // Use the pre-built word list
+                Log.i("frdict", dictName + " - allWords cache file found, using it");
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                allWords = br.readLine();
+                br.close();
+                wordList = Arrays.asList(allWords.split(";"));
+            }
+            else {
+                // Build the word list manually from the database. This is slow.
+
+                // Split the query into chunks of 10000 each. This avoids the "CursorWindow Window is full" warning and is
+                // a lot faster than getting everything in one go (about three times faster)
+                Log.i("frdict", dictName + " - allWords cache file not found, building word list from scratch");
+                wordList = new ArrayList<String>(numEntries);
+                int chunkSize = 10000;
+                int iterations = (int) Math.ceil((double)numEntries / chunkSize);
+                for (int i = 0; i < iterations; i++) {
+                    Cursor cursor = db.rawQuery("select name from word order by name LIMIT " + chunkSize + " OFFSET " + chunkSize * i, null);
+                    if (cursor.moveToFirst()) {
+                        int nameColumnIndex = cursor.getColumnIndex("name");
+                        while (cursor.isAfterLast() == false) {
+                            String name = cursor.getString(nameColumnIndex);
+                            wordList.add(name);
+                            cursor.moveToNext();
+                        }
                     }
+                    cursor.close();
                 }
-                cursor.close();
             }
         }
         catch (Exception e) {
@@ -85,6 +115,26 @@ public class BaseDictionarySqliteDatabase {
         long duration = (end - start);
         Log.i("frdict", dictName + " - getting word list time: " + duration + "ms");
         Log.i("frdict", dictName + " - num entries: " + numEntries);
+        return wordList;
+    }
+
+    public List<String> getNoAccentWordList() {
+        List<String> wordList = null;
+        String allWords = null;
+        try {
+            File file = new File(getNoAccentCachePath());
+            if (file.exists()) {
+                Log.i("frdict", dictName + " - allWordsNoAccent cache file found, using it");
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                allWords = br.readLine();
+                br.close();
+                wordList = Arrays.asList(allWords.split(";"));
+            }
+        }
+        catch (Exception e) {
+            Log.e("frdict", "Error getting no accent word list.");
+            e.printStackTrace();
+        }
         return wordList;
     }
 }

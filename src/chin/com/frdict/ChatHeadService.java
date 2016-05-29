@@ -88,7 +88,14 @@ public class ChatHeadService extends Service {
                     Log.i("frdict", "Start getting word list");
                     List<String> wordList = wiktionaryDb.getWordList();
                     Log.i("frdict", "End getting word list, start creating adapter");
-                    adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList);
+
+                    long start = System.currentTimeMillis();
+                    List<String> accentRemovedList = ChatHeadService.wiktionaryDb.getNoAccentWordList();
+                    long end = System.currentTimeMillis();
+                    long duration = (end - start);
+                    Log.i("frdict", "AccentInsensitiveFilterArrayAdapter - creating accentRemovedList time: " + duration + "ms");
+
+                    adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList, accentRemovedList);
                     Log.i("frdict", "End creating adapter");
                     return null;
                 }
