@@ -129,7 +129,7 @@ public class DictionaryTabFragment extends Fragment {
         Activity activity = getActivity();
         String word = null;
         try {
-            word = (String) activity.getIntent().getExtras().getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
+            word = activity.getIntent().getExtras().getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
         }
         catch (Exception e) {
             // activity can be null, or intent can be null, or extra can be null...

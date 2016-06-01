@@ -148,7 +148,7 @@ public class ChatHeadService extends Service {
         WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) chatheadView.getLayoutParams();
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> landscap");
+            Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> landscape");
 
             if (layoutParams.y + (chatheadView.getHeight() + getStatusBarHeight()) > szWindow.y) {
                 layoutParams.y = szWindow.y - (chatheadView.getHeight() + getStatusBarHeight());

@@ -97,7 +97,7 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // invisible top section
-        final View top = (View) findViewById(R.id.dialog_top);
+        final View top = findViewById(R.id.dialog_top);
         top.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
