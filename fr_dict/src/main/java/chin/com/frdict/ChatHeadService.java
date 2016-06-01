@@ -52,8 +52,8 @@ public class ChatHeadService extends Service {
             String str = (String) clipMan.getText();
             if (str != null && str.trim().length() > 0) {
                 str = str.trim();
-                if (str.contains("s'") || str.contains("s’")) {
-                	str = str.replace("s'", "").replace("s’", "");
+                if (str.contains("s'") || str.contains("sâ€™")) {
+                	str = str.replace("s'", "").replace("sâ€™", "");
                 }
                 // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
                 if (!DictionaryActivity.active) {
