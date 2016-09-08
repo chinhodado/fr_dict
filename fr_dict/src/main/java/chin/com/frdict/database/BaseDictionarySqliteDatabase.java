@@ -59,6 +59,8 @@ public class BaseDictionarySqliteDatabase {
 
             cursor.moveToFirst();
             definition = cursor.getString(cursor.getColumnIndex("definition"));
+
+            cursor.close();
         }
         catch (Exception e) {
             Log.e("frdict", "Something went wrong when querying offline database.");
