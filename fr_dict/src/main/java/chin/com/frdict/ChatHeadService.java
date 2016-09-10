@@ -1,25 +1,25 @@
 package chin.com.frdict;
 
-import java.util.List;
-
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.PixelFormat;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.AsyncTask;
-import android.os.CountDownTimer;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import java.util.List;
+
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
@@ -27,8 +27,6 @@ import chin.com.frdict.database.WiktionarySqliteDatabase;
 
 public class ChatHeadService extends Service {
     public static WindowManager windowManager;
-    public RelativeLayout chatheadView, removeView;
-    public ImageView removeImg;
     public Point szWindow = new Point();
     public static ChatHeadService instance;
     ClipboardManager clipMan;
@@ -42,6 +40,8 @@ public class ChatHeadService extends Service {
     public static AccentInsensitiveFilterArrayAdapter adapter;
 
     public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
+
+    BroadcastReceiver receiver;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -107,127 +107,72 @@ public class ChatHeadService extends Service {
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
-        // the remove view
-        removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
-        WindowManager.LayoutParams paramRemove = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-        paramRemove.gravity = Gravity.TOP | Gravity.START;
-        removeView.setVisibility(View.GONE);
-        removeImg = (ImageView) removeView.findViewById(R.id.remove_img);
-        windowManager.addView(removeView, paramRemove);
-
-        // chathead
-        chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
-        windowManager.getDefaultDisplay().getSize(szWindow);
-        WindowManager.LayoutParams chatheadParams = new WindowManager.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-        chatheadParams.gravity = Gravity.TOP | Gravity.START;
-        chatheadParams.x = 0;
-        chatheadParams.y = 100;
-        windowManager.addView(chatheadView, chatheadParams);
-
-        chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
-
         // automatically search word when copy to clipboard
         clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         regPrimaryClipChanged();
+
+        // add the notification and actions
+        // not sure if this is the correct way for adding new actions...
+        final String actionToogleOpen = "ACTION_TOOGLE_OPEN";
+        final String actionDismiss = "ACTION_DISMISS";
+
+        Intent toogleOpenIntent = new Intent(actionToogleOpen);
+        PendingIntent piToogleOpen = PendingIntent.getBroadcast(this, 0, toogleOpenIntent, 0);
+
+        Intent dismissIntent = new Intent(actionDismiss);
+        dismissIntent.setAction(actionDismiss);
+        PendingIntent piDismiss = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(actionToogleOpen);
+        filter.addAction(actionDismiss);
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action.equals(actionToogleOpen)) {
+                    if (DictionaryActivity.active) {
+                        DictionaryActivity.instance.moveTaskToBack(true);
+                    } else {
+                        Intent it = new Intent(ChatHeadService.instance, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        ChatHeadService.instance.startActivity(it);
+                    }
+                }
+                else if (action.equals(actionDismiss)) {
+                    if (DictionaryActivity.instance != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            DictionaryActivity.instance.finishAndRemoveTask();
+                        }
+                        else {
+                            // This will leave the task in the task list
+                            // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
+                            // and I don't own any pre-lollipop device anyway...
+                            DictionaryActivity.instance.finish();
+                        }
+                    }
+
+                    ChatHeadService.instance.stopSelf();
+                }
+            }
+        };
+
+        registerReceiver(receiver, filter);
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.circle)
+                .setContentTitle("frdict is running")
+                .setContentText("Click to show/hide the dictionary")
+                .setContentIntent(piToogleOpen)
+                .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
+                .build();
+
+        startForeground(1337, notification);
     }
 
     public static void searchWord(String word) {
         new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        windowManager.getDefaultDisplay().getSize(szWindow);
-        WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) chatheadView.getLayoutParams();
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> landscape");
-
-            if (layoutParams.y + (chatheadView.getHeight() + getStatusBarHeight()) > szWindow.y) {
-                layoutParams.y = szWindow.y - (chatheadView.getHeight() + getStatusBarHeight());
-                windowManager.updateViewLayout(chatheadView, layoutParams);
-            }
-
-            if (layoutParams.x != 0 && layoutParams.x < szWindow.x) {
-                resetPosition(szWindow.x);
-            }
-
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> portrait");
-
-            if (layoutParams.x > szWindow.x) {
-                resetPosition(szWindow.x);
-            }
-        }
-    }
-
-    public void resetPosition(int x_cord_now) {
-        int w = chatheadView.getWidth();
-
-        if (x_cord_now == 0 || x_cord_now == szWindow.x - w) {
-
-        } else if (x_cord_now + w / 2 <= szWindow.x / 2) {
-            moveToLeft(x_cord_now);
-        } else if (x_cord_now + w / 2 > szWindow.x / 2) {
-            moveToRight(x_cord_now);
-        }
-    }
-
-    public void moveToLeft(int x_cord_now) {
-        final int x = x_cord_now;
-        new CountDownTimer(500, 5) {
-            WindowManager.LayoutParams mParams = (WindowManager.LayoutParams) chatheadView.getLayoutParams();
-
-            @Override
-            public void onTick(long t) {
-                long step = (500 - t) / 5;
-                mParams.x = (int) (double) bounceValue(step, x);
-                windowManager.updateViewLayout(chatheadView, mParams);
-            }
-
-            @Override
-            public void onFinish() {
-                mParams.x = 0;
-                windowManager.updateViewLayout(chatheadView, mParams);
-            }
-        }.start();
-    }
-
-    public void moveToRight(int x_cord_now) {
-        final int x = x_cord_now;
-        new CountDownTimer(500, 5) {
-            WindowManager.LayoutParams mParams = (WindowManager.LayoutParams) chatheadView.getLayoutParams();
-
-            @Override
-            public void onTick(long t) {
-                long step = (500 - t) / 5;
-                mParams.x = szWindow.x + (int) (double) bounceValue(step, x) - chatheadView.getWidth();
-                windowManager.updateViewLayout(chatheadView, mParams);
-            }
-
-            @Override
-            public void onFinish() {
-                mParams.x = szWindow.x - chatheadView.getWidth();
-                windowManager.updateViewLayout(chatheadView, mParams);
-            }
-        }.start();
-    }
-
-    private double bounceValue(long step, long scale) {
-        double value = scale * java.lang.Math.exp(-0.055 * step) * java.lang.Math.cos(0.08 * step);
-        return value;
-    }
-
-    public int getStatusBarHeight() {
-        int statusBarHeight = (int) Math.ceil(25 * getApplicationContext().getResources().getDisplayMetrics().density);
-        return statusBarHeight;
     }
 
     @Override
@@ -262,15 +207,9 @@ public class ChatHeadService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.i(Utility.LogTag, "ChatHeadService.onDestroy()");
-        if (chatheadView != null) {
-            windowManager.removeView(chatheadView);
-        }
-
-        if (removeView != null) {
-            windowManager.removeView(removeView);
-        }
 
         unRegPrimaryClipChanged();
+        unregisterReceiver(receiver);
     }
 
     @Override
