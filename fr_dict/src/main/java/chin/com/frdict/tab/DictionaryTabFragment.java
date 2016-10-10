@@ -50,7 +50,7 @@ public class DictionaryTabFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dict_tab, container, false);
 
         // web views
-        WebViewClient client = null;
+        WebViewClient client;
         if (type == Dictionary.Wiktionary) {
             DictionaryActivity.webViewWiktionary = (WebView) view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewWiktionary;

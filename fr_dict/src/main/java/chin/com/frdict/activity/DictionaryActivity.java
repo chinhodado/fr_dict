@@ -33,10 +33,6 @@ public class DictionaryActivity extends FragmentActivity {
     public static WebView webViewWiktionary, webViewOxfordHachette;
     public AutoCompleteTextView edt;
 
-    private PagerSlidingTabStrip tabs;
-    private ViewPager pager;
-    private DictionaryPagerAdapter adapter;
-
     public enum Dictionary{
         Wiktionary, OxfordHachette
     }
@@ -125,9 +121,9 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // tabs
-        tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-        pager = (ViewPager) findViewById(R.id.pager);
-        adapter = new DictionaryPagerAdapter(getSupportFragmentManager());
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        DictionaryPagerAdapter adapter = new DictionaryPagerAdapter(getSupportFragmentManager());
 
         pager.setAdapter(adapter);
 

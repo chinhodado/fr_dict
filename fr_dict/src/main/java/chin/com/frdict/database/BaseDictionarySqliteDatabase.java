@@ -75,7 +75,7 @@ public class BaseDictionarySqliteDatabase {
         // here's hoping our database doesn't have too many rows that the count won't fit into an int...
         int numEntries = (int)DatabaseUtils.queryNumEntries(db, "word");
         List<String> wordList = null;
-        String allWords = null;
+        String allWords;
         try {
             File file = new File(getCachePath());
             if (file.exists()) {
@@ -99,7 +99,7 @@ public class BaseDictionarySqliteDatabase {
                     Cursor cursor = db.rawQuery("select name from word order by name LIMIT " + chunkSize + " OFFSET " + chunkSize * i, null);
                     if (cursor.moveToFirst()) {
                         int nameColumnIndex = cursor.getColumnIndex("name");
-                        while (cursor.isAfterLast() == false) {
+                        while (!cursor.isAfterLast()) {
                             String name = cursor.getString(nameColumnIndex);
                             wordList.add(name);
                             cursor.moveToNext();
@@ -122,7 +122,7 @@ public class BaseDictionarySqliteDatabase {
 
     public List<String> getNoAccentWordList() {
         List<String> wordList = null;
-        String allWords = null;
+        String allWords;
         try {
             File file = new File(getNoAccentCachePath());
             if (file.exists()) {

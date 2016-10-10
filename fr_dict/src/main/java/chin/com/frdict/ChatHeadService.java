@@ -8,13 +8,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -27,7 +25,6 @@ import chin.com.frdict.database.WiktionarySqliteDatabase;
 
 public class ChatHeadService extends Service {
     public static WindowManager windowManager;
-    public Point szWindow = new Point();
     public static ChatHeadService instance;
     ClipboardManager clipMan;
     static boolean hasClipChangedListener = false;
@@ -76,7 +73,6 @@ public class ChatHeadService extends Service {
         instance = this;
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         ChatHeadService.wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         ChatHeadService.oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
 
