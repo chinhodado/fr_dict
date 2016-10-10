@@ -49,9 +49,13 @@ public class ChatHeadService extends Service {
             String str = (String) clipMan.getText();
             if (str != null && str.trim().length() > 0) {
                 str = str.trim();
-                if (str.contains("s'") || str.contains("s’")) {
-                	str = str.replace("s'", "").replace("s’", "");
+
+                // deal with "words" like t'aime, m'appelle, s'occuper, etc.
+                char second = str.charAt(1);
+                if (second == '\'' || second == '’') {
+                    str = str.substring(2);
                 }
+
                 // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
                 if (!DictionaryActivity.active) {
                     Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
