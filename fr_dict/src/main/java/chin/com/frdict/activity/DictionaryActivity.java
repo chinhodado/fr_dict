@@ -77,6 +77,10 @@ public class DictionaryActivity extends FragmentActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name = (String)parent.getItemAtPosition(position);
                 ChatHeadService.searchWord(name);
+
+                // hide the keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
             }
         });
 
