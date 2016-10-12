@@ -29,15 +29,23 @@
             android:inputType="textNoSuggestions"
             android:textColor="#000000">
         </AutoCompleteTextView>
-        
+
         <ImageView
             android:id="@+id/imageView_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/dialog_edt"
+            android:layout_toLeftOf="@+id/imageView_speaker"
+            android:src="@drawable/ic_search" />
+
+        <ImageView
+            android:id="@+id/imageView_speaker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/dialog_edt"
             android:layout_toLeftOf="@+id/imageView_fullscreen"
-            android:src="@android:drawable/ic_search_category_default" />
-    
+            android:src="@drawable/speaker_48" />
+
         <ImageView
             android:id="@+id/imageView_fullscreen"
             android:layout_width="wrap_content"

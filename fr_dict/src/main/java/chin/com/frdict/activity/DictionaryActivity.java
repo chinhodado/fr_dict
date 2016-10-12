@@ -3,6 +3,7 @@ package chin.com.frdict.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -21,6 +22,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.Locale;
+
 import chin.com.frdict.ChatHeadService;
 import chin.com.frdict.R;
 import chin.com.frdict.Utility;
@@ -32,6 +36,7 @@ public class DictionaryActivity extends FragmentActivity {
     public static DictionaryActivity instance;
     public static WebView webViewWiktionary, webViewOxfordHachette;
     public AutoCompleteTextView edt;
+    TextToSpeech tts;
 
     public enum Dictionary{
         Wiktionary, OxfordHachette
@@ -120,6 +125,26 @@ public class DictionaryActivity extends FragmentActivity {
             }
         });
 
+        // speaker image
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    // Using FRENCH to just specify the language. If specifically want
+                    // the language as spoken in the country, use FRANCE.
+                    tts.setLanguage(Locale.FRENCH);
+                }
+            }
+        });
+        ImageView speaker = (ImageView) findViewById(R.id.imageView_speaker);
+        speaker.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String toSpeak = edt.getText().toString();
+                tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+            }
+        });
+
         // tabs
         PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
@@ -192,6 +217,12 @@ public class DictionaryActivity extends FragmentActivity {
         super.onDestroy();
         Log.i(Utility.LogTag, "DictionaryActivity onDestroy()");
         active = false;
+
+        // stop the text-to-speech
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
     }
 
     @Override
