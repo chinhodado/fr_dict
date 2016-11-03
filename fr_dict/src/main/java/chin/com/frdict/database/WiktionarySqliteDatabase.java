@@ -1,6 +1,10 @@
 package chin.com.frdict.database;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -42,6 +46,21 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
     public String getWordDefinition(String name) {
         String definition = super.getWordDefinition(name);
         if (definition != null) {
+            // In the current word's definition, if all the links all point to the same word,
+            // append that word's definition to the current definition. This is useful for word
+            // forms (e.g. conjugated verbs, plural form of nouns, etc.)
+            Pattern p = Pattern.compile("<i>(\\w+)</i>");
+            Matcher m = p.matcher(definition);
+            Set<String> secondWords = new HashSet<>();
+            while (m.find()) {
+                secondWords.add(m.group(1));
+            }
+
+            if (secondWords.size() == 1) {
+                String secondDefinition = super.getWordDefinition((String)secondWords.toArray()[0]);
+                definition += secondDefinition;
+            }
+
             String css = "<style> a { color: rgba(54, 95, 145, 1); } </style>";
             // this is just a heuristic and won't be accurate in all cases
             definition = definition.replaceAll("<i>(\\w+)</i>", "<a href='frdict://search\\?word=$1'><i>$1</i></a>");
