@@ -53,7 +53,11 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
             Matcher m = p.matcher(definition);
             Set<String> secondWords = new HashSet<>();
             while (m.find()) {
-                secondWords.add(m.group(1));
+                String secondWord = m.group(1);
+                if (secondWord.equals("plural") || secondWord.equals("feminine")) {
+                    continue;
+                }
+                secondWords.add(secondWord);
             }
 
             if (secondWords.size() == 1) {
