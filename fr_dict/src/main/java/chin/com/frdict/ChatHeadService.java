@@ -19,6 +19,8 @@ import android.widget.Toast;
 import java.util.List;
 
 import chin.com.frdict.activity.DictionaryActivity;
+import chin.com.frdict.asyncTask.DeepSearchAsyncTask;
+import chin.com.frdict.asyncTask.SearchWordAsyncTask;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
@@ -173,6 +175,11 @@ public class ChatHeadService extends Service {
     public static void searchWord(String word) {
         new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void deepSearch(String toSearch) {
+        new DeepSearchAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, toSearch).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new DeepSearchAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, toSearch).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override

@@ -18,7 +18,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 import chin.com.frdict.ChatHeadService;
 import chin.com.frdict.R;
-import chin.com.frdict.SearchWordAsyncTask;
+import chin.com.frdict.asyncTask.SearchWordAsyncTask;
 import chin.com.frdict.Utility;
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.DictionaryActivity.Dictionary;

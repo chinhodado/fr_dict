@@ -70,6 +70,45 @@ public class BaseDictionarySqliteDatabase {
         return definition;
     }
 
+    public List<String> getDeepSeachResults(String toSearch, int limit) {
+        List<String> results = new ArrayList<>();
+        String limitClause = "";
+        if (limit != 0) {
+            limitClause = " limit " + limit;
+        }
+        try {
+            Cursor cursor = db.rawQuery("select name from word where definition like ? collate nocase" + limitClause,
+                    new String[] { "%" + toSearch + "%" });
+
+            if (cursor.moveToFirst()) {
+                int nameColumnIndex = cursor.getColumnIndex("name");
+                while (!cursor.isAfterLast()) {
+                    String name = cursor.getString(nameColumnIndex);
+                    results.add(name);
+                    cursor.moveToNext();
+                }
+            }
+
+            cursor.close();
+        }
+        catch (Exception e) {
+            Log.e("frdict", "Something went wrong when querying offline database.");
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    public String getDeepSearchResultsHtml(String toSearch, int limit) {
+        List<String> results = getDeepSeachResults(toSearch, limit);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Deep search result for " + toSearch + ": <br>");
+        for (String s : results) {
+            sb.append("<a href='frdict://search?word=" + s + "'><i>" + s + "</i></a><br>");
+        }
+        return sb.toString();
+    }
+
     public List<String> getWordList() {
         long start = System.currentTimeMillis();
         // here's hoping our database doesn't have too many rows that the count won't fit into an int...

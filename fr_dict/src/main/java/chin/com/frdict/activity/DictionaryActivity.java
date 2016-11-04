@@ -101,6 +101,22 @@ public class DictionaryActivity extends FragmentActivity {
             }
         });
 
+        // deep search image
+        final ImageView deepSearchImg = (ImageView) findViewById(R.id.imageView_deepSearch);
+        deepSearchImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = edt.getText().toString();
+                if (str.length() > 0) {
+                    ChatHeadService.deepSearch(str);
+                }
+
+                // hide the keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
+            }
+        });
+
         // invisible top section
         final View top = findViewById(R.id.dialog_top);
         top.setOnClickListener(new OnClickListener() {

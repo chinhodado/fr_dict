@@ -1,4 +1,4 @@
-package chin.com.frdict;
+package chin.com.frdict.asyncTask;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,10 +7,10 @@ import android.webkit.WebView;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
-    private WebView webView;
-    private String word;
-    private Context context;
-    private BaseDictionarySqliteDatabase db;
+    protected WebView webView;
+    protected String word;
+    protected Context context;
+    protected BaseDictionarySqliteDatabase db;
 
     /**
      * Constructor
@@ -36,7 +36,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
     }
 
-    private String getWordDefinitionOffline() {
+    protected String getWordDefinitionOffline() {
         String definition = db.getWordDefinition(word);
         if (definition == null) {
             definition = "Word not found: " + word;

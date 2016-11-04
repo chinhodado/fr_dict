@@ -35,8 +35,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/dialog_edt"
-            android:layout_toLeftOf="@+id/imageView_speaker"
+            android:layout_toLeftOf="@+id/imageView_deepSearch"
             android:src="@drawable/ic_search" />
+
+        <ImageView
+            android:id="@+id/imageView_deepSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/dialog_edt"
+            android:layout_toLeftOf="@+id/imageView_speaker"
+            android:src="@drawable/ic_deepsearch" />
 
         <ImageView
             android:id="@+id/imageView_speaker"
