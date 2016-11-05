@@ -61,22 +61,6 @@ public class DictionaryTabFragment extends Fragment {
                     Toast.makeText(DictionaryActivity.instance, description, Toast.LENGTH_SHORT).show();
                 }
 
-                @Override
-                public void onLoadResource(WebView view, String url){
-                    Pattern pattern = Pattern.compile("http(s?)://en\\.(m\\.)?wiktionary\\.org/wiki/(.*)#French");
-                    Matcher matcher = pattern.matcher(url);
-                    if(matcher.find()){
-                        String word = matcher.group(3);
-                        try {
-                            word = URLDecoder.decode(word, "UTF-8");
-                            new SearchWordAsyncTask(DictionaryActivity.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                            DictionaryActivity.instance.edt.setText(word);
-                        } catch (UnsupportedEncodingException e) {
-                            Log.w("frdict", "Error decoding word in URL");
-                        }
-                    }
-                }
-
                 /**
                  * Handle our own protocol when clicking on such a link in the WebView
                  * TODO: implement a system-wide intent filter for the custom protocol?
