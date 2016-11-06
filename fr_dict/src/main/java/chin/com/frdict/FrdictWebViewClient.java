@@ -1,5 +1,6 @@
 package chin.com.frdict;
 
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -29,24 +30,30 @@ public class FrdictWebViewClient extends WebViewClient {
      */
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if (url.startsWith("frdict://")) {
-            Pattern pattern = Pattern.compile("frdict://search\\?word=(.*)");
-            Matcher matcher = pattern.matcher(url);
-            if(matcher.find()){
-                try {
-                    String word = matcher.group(1);
-                    word = URLDecoder.decode(word, "UTF-8");
-                    ChatHeadService.searchWord(word);
-                    DictionaryActivity.instance.edt.setText(word);
-                }
-                catch (UnsupportedEncodingException e) {
-                    Log.w("frdict", "Error decoding word in URL");
-                }
+        if (url != null && url.startsWith("frdict:/")) {
+            Uri parsed = Uri.parse(url);
+            String word = parsed.getQueryParameter("word");
+
+            String highlight = parsed.getQueryParameter("highlight");
+            if (highlight == null) {
+                ChatHeadService.searchWord(word);
             }
+            else {
+                ChatHeadService.searchWordAndHighlight(word, highlight);
+            }
+
+            DictionaryActivity.instance.edt.setText(word);
             return true;
         }
         else {
             return super.shouldOverrideUrlLoading(view, url);
         }
+    }
+
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        // note: when we search a word and it reaches here, the url is just "about:blank"
+        // so don't do any url parsing here
+        view.loadUrl("javascript:scrollToHighlight();");
     }
 }

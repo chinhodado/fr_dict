@@ -46,21 +46,20 @@ public class DictionaryTabFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dict_tab, container, false);
 
         // web views
-        WebViewClient client;
         if (type == Dictionary.Wiktionary) {
             DictionaryActivity.webViewWiktionary = (WebView) view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewWiktionary;
             dict = ChatHeadService.wiktionaryDb;
-            client = new FrdictWebViewClient();
-            DictionaryActivity.webViewWiktionary.setWebViewClient(client);
         }
         else {
             DictionaryActivity.webViewOxfordHachette = (WebView) view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewOxfordHachette;
             dict = ChatHeadService.oxfordHachetteDb;
-            client = new FrdictWebViewClient();
-            DictionaryActivity.webViewOxfordHachette.setWebViewClient(client);
         }
+
+        webview.getSettings().setJavaScriptEnabled(true);
+        WebViewClient client = new FrdictWebViewClient();
+        webview.setWebViewClient(client);
 
         return view;
     }

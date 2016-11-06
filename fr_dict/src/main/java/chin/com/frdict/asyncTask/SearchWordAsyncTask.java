@@ -9,6 +9,7 @@ import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     protected WebView webView;
     protected String word;
+    protected String highlight;
     protected Context context;
     protected BaseDictionarySqliteDatabase db;
 
@@ -26,6 +27,22 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         this.db = db;
     }
 
+    /**
+     * Constructor
+     * @param context A context
+     * @param webView The webview to display the word definition
+     * @param db The database helper to work with an offline database
+     * @param word The word to look up
+     * @param highlight The string to highlight and scroll to in the word's definition
+     */
+    public SearchWordAsyncTask(Context context, WebView webView, BaseDictionarySqliteDatabase db, String word, String highlight) {
+        this.context = context;
+        this.webView = webView;
+        this.word = word;
+        this.highlight = highlight;
+        this.db = db;
+    }
+
     @Override
     protected String doInBackground(Void... params) {
         return getWordDefinitionOffline();
@@ -33,6 +50,11 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String html) {
+        if (highlight != null) {
+            html = html.replace(highlight, "<span id='highlight' style='background-color: yellow'>" + highlight + "</span>");
+            html += "<script> function scrollToHighlight() { window.location.hash = '#highlight';}</script>";
+        }
+
         webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
     }
 

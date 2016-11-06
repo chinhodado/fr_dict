@@ -11,6 +11,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
@@ -104,7 +105,13 @@ public class BaseDictionarySqliteDatabase {
         StringBuilder sb = new StringBuilder();
         sb.append("Deep search result for " + toSearch + ": <br>");
         for (String s : results) {
-            sb.append("<a href='frdict://search?word=" + s + "'><i>" + s + "</i></a><br>");
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("frdict")
+                    .appendPath("search")
+                    .appendQueryParameter("word", s)
+                    .appendQueryParameter("highlight", toSearch);
+            String myUrl = builder.build().toString();
+            sb.append("<a href=\"" + myUrl + "\">" + s + "</a><br>");
         }
         return sb.toString();
     }
