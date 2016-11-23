@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
+        android:key="pref_createAdapterTime"
+        android:selectable="true"
+        android:persistent="false"
+        android:title="Time to create adapter"
+        android:summary=""/>
+
+    <Preference
         android:key="pref_version"
         android:selectable="true"
         android:persistent="false"

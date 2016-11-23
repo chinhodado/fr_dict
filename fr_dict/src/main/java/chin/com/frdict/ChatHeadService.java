@@ -43,6 +43,9 @@ public class ChatHeadService extends Service {
 
     BroadcastReceiver receiver;
 
+    // time to create the adapter, in ms, for benchmarking purposes
+    private long createAdapterTime;
+
     /**
      * Event handler for looking up the word that was just copied into the clipboard
      */
@@ -95,8 +98,8 @@ public class ChatHeadService extends Service {
                     long start = System.currentTimeMillis();
                     List<String> accentRemovedList = ChatHeadService.wiktionaryDb.getNoAccentWordList();
                     long end = System.currentTimeMillis();
-                    long duration = (end - start);
-                    Log.i("frdict", "AccentInsensitiveFilterArrayAdapter - creating accentRemovedList time: " + duration + "ms");
+                    createAdapterTime = (end - start);
+                    Log.i("frdict", "AccentInsensitiveFilterArrayAdapter - creating accentRemovedList time: " + createAdapterTime + "ms");
 
                     adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList, accentRemovedList);
                     Log.i("frdict", "End creating adapter");
@@ -253,5 +256,9 @@ public class ChatHeadService extends Service {
     public IBinder onBind(Intent intent) {
         Log.d(Utility.LogTag, "ChatHeadService.onBind()");
         return null;
+    }
+
+    public long getCreateAdapterTime() {
+        return createAdapterTime;
     }
 }

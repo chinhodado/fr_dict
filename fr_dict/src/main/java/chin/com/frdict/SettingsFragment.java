@@ -18,7 +18,10 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
 
         String versionName = BuildConfig.VERSION_NAME;
-        Preference customPref = findPreference("pref_version");
-        customPref.setSummary(versionName);
+        Preference versionPref = findPreference("pref_version");
+        versionPref.setSummary(versionName);
+
+        Preference timeAdapterPref = findPreference("pref_createAdapterTime");
+        timeAdapterPref.setSummary(ChatHeadService.instance.getCreateAdapterTime() + "ms");
     }
 }
