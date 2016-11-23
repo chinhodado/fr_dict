@@ -8,16 +8,28 @@ android {
         applicationId "chin.com.frdict"
         minSdkVersion 16
         targetSdkVersion 24
+        versionCode 3
+        versionName "2.1"
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            versionNameSuffix " build " + getDate()
+        }
+        debug {
+            versionNameSuffix " build " + getDate()
         }
     }
 }
 
 dependencies {
     compile project(':common')
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
 }

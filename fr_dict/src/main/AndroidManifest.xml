@@ -1,8 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="chin.com.frdict"
-    android:versionCode="3"
-    android:versionName="2.1" >
+    package="chin.com.frdict" >
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -25,13 +23,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
+        <!-- The launchMode has to be singleInstance so that no other activity (e.g. the setting activity)
+        can be placed into the task of this activity. Otherwise, if this activity shares the same task
+        with another activity, then when we call moveTaskToBack() on this activity the other activity
+        will be moved to back too -->
         <activity
             android:name="chin.com.frdict.activity.DictionaryActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:windowSoftInputMode="stateHidden"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.Transparent"/>
+
+        <activity
+            android:name="chin.com.frdict.activity.SettingsActivity"
+            android:windowSoftInputMode="stateHidden"/>
 
         <service android:name="chin.com.frdict.ChatHeadService" />
     </application>

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import chin.com.frdict.activity.DictionaryActivity;
+import chin.com.frdict.activity.SettingsActivity;
 import chin.com.frdict.asyncTask.DeepSearchAsyncTask;
 import chin.com.frdict.asyncTask.SearchWordAsyncTask;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
@@ -117,6 +118,7 @@ public class ChatHeadService extends Service {
         // not sure if this is the correct way for adding new actions...
         final String actionToogleOpen = "ACTION_TOOGLE_OPEN";
         final String actionDismiss = "ACTION_DISMISS";
+        final String actionSetting = "ACTION_SETTING";
 
         Intent toogleOpenIntent = new Intent(actionToogleOpen);
         PendingIntent piToogleOpen = PendingIntent.getBroadcast(this, 0, toogleOpenIntent, 0);
@@ -125,36 +127,52 @@ public class ChatHeadService extends Service {
         dismissIntent.setAction(actionDismiss);
         PendingIntent piDismiss = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
 
+        Intent settingIntent = new Intent(actionSetting);
+        settingIntent.setAction(actionSetting);
+        PendingIntent piSetting = PendingIntent.getBroadcast(this, 0, settingIntent, 0);
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(actionToogleOpen);
         filter.addAction(actionDismiss);
+        filter.addAction(actionSetting);
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                if (action.equals(actionToogleOpen)) {
-                    if (DictionaryActivity.active) {
-                        DictionaryActivity.instance.moveTaskToBack(true);
-                    } else {
-                        Intent it = new Intent(ChatHeadService.instance, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                switch (action) {
+                    case actionToogleOpen:
+                        if (DictionaryActivity.active) {
+                            DictionaryActivity.instance.moveTaskToBack(true);
+                        } else {
+                            Intent it = new Intent(ChatHeadService.instance, DictionaryActivity.class)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            ChatHeadService.instance.startActivity(it);
+                        }
+                        break;
+                    case actionSetting:
+                        Intent it = new Intent(ChatHeadService.instance, SettingsActivity.class)
+                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         ChatHeadService.instance.startActivity(it);
-                    }
-                }
-                else if (action.equals(actionDismiss)) {
-                    if (DictionaryActivity.instance != null) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            DictionaryActivity.instance.finishAndRemoveTask();
-                        }
-                        else {
-                            // This will leave the task in the task list
-                            // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
-                            // and I don't own any pre-lollipop device anyway...
-                            DictionaryActivity.instance.finish();
-                        }
-                    }
 
-                    ChatHeadService.instance.stopSelf();
+                        // close the notification drawer
+                        it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                        context.sendBroadcast(it);
+                        break;
+                    case actionDismiss:
+                        if (DictionaryActivity.instance != null) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                DictionaryActivity.instance.finishAndRemoveTask();
+                            } else {
+                                // This will leave the task in the task list
+                                // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
+                                // and I don't own any pre-lollipop device anyway...
+                                DictionaryActivity.instance.finish();
+                            }
+                        }
+
+                        ChatHeadService.instance.stopSelf();
+                        break;
                 }
             }
         };
@@ -166,6 +184,7 @@ public class ChatHeadService extends Service {
                 .setContentTitle("frdict is running")
                 .setContentText("Click to show/hide the dictionary")
                 .setContentIntent(piToogleOpen)
+                .addAction(android.R.drawable.ic_menu_preferences, "Settings", piSetting)
                 .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
                 .build();
 
