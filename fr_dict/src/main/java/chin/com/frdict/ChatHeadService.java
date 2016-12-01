@@ -61,6 +61,12 @@ public class ChatHeadService extends Service {
                     return;
                 }
 
+                // trim , . ; at the end
+                str = str.replaceAll("(,|\\.|;)+$", "");
+
+                // trim , . ; at the beginning
+                str = str.replaceAll("^(,|\\.|;)+", "");
+
                 // deal with "words" like t'aime, m'appelle, s'occuper, etc.
                 char second = str.charAt(1);
                 if (second == '\'' || second == '’') {
