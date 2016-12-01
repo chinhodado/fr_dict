@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.webkit.WebView;
 
+import java.util.regex.Pattern;
+
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
@@ -51,7 +53,8 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String html) {
         if (highlight != null) {
-            html = html.replace(highlight, "<span id='highlight' style='background-color: yellow'>" + highlight + "</span>");
+            html = html.replaceAll("(?i)" + Pattern.quote(highlight),
+                    "<span id='highlight' style='background-color: yellow'>$0</span>");
             html += "<script> function scrollToHighlight() { window.location.hash = '#highlight';}</script>";
         }
 
