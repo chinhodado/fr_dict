@@ -56,6 +56,11 @@ public class ChatHeadService extends Service {
             if (str != null && str.trim().length() > 0) {
                 str = str.trim();
 
+                // don't react to links
+                if (str.startsWith("http")) {
+                    return;
+                }
+
                 // deal with "words" like t'aime, m'appelle, s'occuper, etc.
                 char second = str.charAt(1);
                 if (second == '\'' || second == '’') {
