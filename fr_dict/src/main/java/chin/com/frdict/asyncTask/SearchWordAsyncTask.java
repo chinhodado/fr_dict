@@ -59,6 +59,10 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         }
 
         webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
+
+        // request focus for the webview to avoid the autocomplete textview popping up its list
+        // (which is rather annoying when searching word copied from clipboard)
+        webView.requestFocus();
     }
 
     protected String getWordDefinitionOffline() {
