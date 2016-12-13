@@ -24,11 +24,9 @@ public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
             OxfordHachetteSqliteDatabase dbHelper = new OxfordHachetteSqliteDatabase(context);
             File file = new File(dbHelper.getDatabasePath());
             File file2 = new File(dbHelper.getDatabaseAlternatePath());
-            if (file.exists()) {
-                dbHelper.db = SQLiteDatabase.openDatabase(dbHelper.getDatabasePath(), null, SQLiteDatabase.OPEN_READONLY);
-            }
-            else if (file2.exists()) {
-                dbHelper.db = SQLiteDatabase.openDatabase(dbHelper.getDatabaseAlternatePath(), null, SQLiteDatabase.OPEN_READONLY);
+            if (file.exists() || file2.exists()) {
+                String path = file.exists()? dbHelper.getDatabasePath() : dbHelper.getDatabaseAlternatePath();
+                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
             }
             else {
                 Toast.makeText(context, dbHelper.databaseFileName + " not found", Toast.LENGTH_LONG).show();
