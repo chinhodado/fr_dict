@@ -62,7 +62,8 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
             String myUrl = builder.build().toString();
 
             html = html.replaceAll("(?i)" + Pattern.quote(highlight),
-                    "<span id='highlight' style='background-color: yellow'><a href='" + myUrl + "'>$0</a></span>");
+                    "<span id='highlight' style='background-color: yellow'>" +
+                            "<a style='color: inherit; text-decoration: inherit;' href='" + myUrl + "'>$0</a></span>");
             html += "<script> function scrollToHighlight() { window.location.hash = '#highlight';}</script>";
         }
 
