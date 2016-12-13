@@ -35,7 +35,11 @@ public class FrdictWebViewClient extends WebViewClient {
             String word = parsed.getQueryParameter("word");
 
             String highlight = parsed.getQueryParameter("highlight");
-            if (highlight == null) {
+            String deepSearch = parsed.getQueryParameter("deepSearch");
+            if (deepSearch != null) {
+                ChatHeadService.deepSearch(word);
+            }
+            else if (highlight == null) {
                 ChatHeadService.searchWord(word);
             }
             else {
