@@ -58,6 +58,6 @@ public class FrdictWebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         // note: when we search a word and it reaches here, the url is just "about:blank"
         // so don't do any url parsing here
-        view.loadUrl("javascript:scrollToHighlight();");
+        view.loadUrl("javascript:if (typeof scrollToHighlight === 'function') scrollToHighlight();");
     }
 }
