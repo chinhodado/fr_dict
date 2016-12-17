@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 public class BaseDictionarySqliteDatabase {
     protected SQLiteDatabase db;
@@ -50,6 +51,7 @@ public class BaseDictionarySqliteDatabase {
     }
 
     public String getWordDefinition(String name) {
+        long start = System.currentTimeMillis();
         String definition = null;
         try {
             Cursor cursor = db.rawQuery("select definition from word where name = ? collate nocase", new String[] { name });
@@ -64,22 +66,26 @@ public class BaseDictionarySqliteDatabase {
             cursor.close();
         }
         catch (Exception e) {
-            Log.e("frdict", "Something went wrong when querying offline database.");
+            Log.e("frdict", dictName + " - Something went wrong when querying offline database.");
             e.printStackTrace();
         }
 
+        long end = System.currentTimeMillis();
+        Log.i("frdict", dictName + " - Search for \"" + name + "\" took " + (end-start) + "ms");
         return definition;
     }
 
     public List<String> getDeepSeachResults(String toSearch, int limit) {
+        long start = System.currentTimeMillis();
+
         List<String> results = new ArrayList<>();
         String limitClause = "";
         if (limit != 0) {
             limitClause = " limit " + limit;
         }
         try {
-            Cursor cursor = db.rawQuery("select name from word where definition like ? collate nocase" + limitClause,
-                    new String[] { "%" + toSearch + "%" });
+            Cursor cursor = db.rawQuery("select name from fts where definition match ? collate nocase" + limitClause,
+                    new String[] { "\"" + toSearch + "\""});
 
             if (cursor.moveToFirst()) {
                 int nameColumnIndex = cursor.getColumnIndex("name");
@@ -93,10 +99,11 @@ public class BaseDictionarySqliteDatabase {
             cursor.close();
         }
         catch (Exception e) {
-            Log.e("frdict", "Something went wrong when querying offline database.");
+            Log.e("frdict", dictName + " - Something went wrong when querying offline database.");
             e.printStackTrace();
         }
-
+        long end = System.currentTimeMillis();
+        Log.i("frdict", dictName + " - Deep search for \"" + toSearch + "\" took " + (end-start) + "ms");
         return results;
     }
 
@@ -156,7 +163,7 @@ public class BaseDictionarySqliteDatabase {
             }
         }
         catch (Exception e) {
-            Log.e("frdict", "Error getting word list.");
+            Log.e("frdict", dictName + " - Error getting word list.");
             e.printStackTrace();
         }
         long end = System.currentTimeMillis();
@@ -180,9 +187,76 @@ public class BaseDictionarySqliteDatabase {
             }
         }
         catch (Exception e) {
-            Log.e("frdict", "Error getting no accent word list.");
+            Log.e("frdict", dictName + " - Error getting no accent word list.");
             e.printStackTrace();
         }
         return wordList;
+    }
+
+    /**
+     * Get the list of tables in this database
+     * @return The list of tables in this database
+     */
+    public List<String> getTableList() {
+        List<String> results = new ArrayList<>();
+        try {
+            Cursor cursor = db.rawQuery("SELECT name, sql FROM sqlite_master WHERE type = 'table'",
+                    new String[] {});
+
+            if (cursor.moveToFirst()) {
+                int nameColumnIndex = cursor.getColumnIndex("name");
+                while (!cursor.isAfterLast()) {
+                    String name = cursor.getString(nameColumnIndex);
+                    results.add(name);
+                    cursor.moveToNext();
+                }
+            }
+
+            cursor.close();
+        }
+        catch (Exception e) {
+            Log.e("frdict", dictName + " - Something went wrong when querying offline database.");
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    /**
+     * Drop the full-text search table (or rather, tables) on this database
+     */
+    public void dropFtsTable() {
+        db.execSQL("DROP TABLE IF EXISTS fts");
+    }
+
+    /**
+     * Check if the current database already has the full-text search table(s)
+     * @return true if the fts table(s) already exists, false otherwise
+     */
+    public boolean hasFtsTable() {
+        List<String> tables = getTableList();
+        for (String table : tables) {
+            if (table.startsWith("fts")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create the full-text search table if it doesn't already exists
+     */
+    public void createFtsTable() {
+        if (hasFtsTable()) {
+            return;
+        }
+
+        Toast.makeText(context, "Creating full-text search table for " + databaseFileName, Toast.LENGTH_SHORT).show();
+        long startTime = System.currentTimeMillis();
+        db.execSQL("CREATE VIRTUAL TABLE fts USING fts3 (name, definition)");
+        db.execSQL("INSERT INTO fts SELECT * FROM word");
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        Log.i("frdict", dictName + " - Created full-text search table, time: " + duration + "ms");
+        Toast.makeText(context, "Done creating full-text search table for " + databaseFileName + " (" + duration + "ms)", Toast.LENGTH_SHORT).show();
     }
 }

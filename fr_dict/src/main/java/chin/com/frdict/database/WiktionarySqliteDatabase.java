@@ -43,7 +43,8 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
                 // Log.i("frdict", "End creating in memory db for " + dbHelper.databaseFileName + ", time: " + (endTime-startTime) + "ms");
                 // dbHelper.db = memDb;
                 String path = file.exists()? dbHelper.getDatabasePath() : dbHelper.getDatabaseAlternatePath();
-                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE);
+                dbHelper.createFtsTable();
             }
             else {
                 Toast.makeText(context, dbHelper.databaseFileName + " not found", Toast.LENGTH_LONG).show();

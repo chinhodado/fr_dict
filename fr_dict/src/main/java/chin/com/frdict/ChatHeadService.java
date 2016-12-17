@@ -97,6 +97,8 @@ public class ChatHeadService extends Service {
         ChatHeadService.wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
         ChatHeadService.oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
 
+        printDbTableList();
+
         if (adapter == null) {
             Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is initializing", Toast.LENGTH_SHORT).show();
             new AsyncTask<Void, Void, Void>() {
@@ -271,5 +273,23 @@ public class ChatHeadService extends Service {
 
     public long getCreateAdapterTime() {
         return createAdapterTime;
+    }
+
+    private void printDbTableList() {
+        List<String> wiktionaryDbTables = ChatHeadService.wiktionaryDb.getTableList();
+        StringBuilder sb = new StringBuilder();
+        for (String s : wiktionaryDbTables) {
+            sb.append(s).append(",");
+        }
+        sb.setCharAt(sb.length() - 1, ']');
+        Log.i("frdict", "wiktionary db table list: [" + sb.toString());
+
+        List<String> oxfordDbTables = ChatHeadService.oxfordHachetteDb.getTableList();
+        sb = new StringBuilder();
+        for (String s : oxfordDbTables) {
+            sb.append(s).append(",");
+        }
+        sb.setCharAt(sb.length() - 1, ']');
+        Log.i("frdict", "oxford hachette db table list: [" + sb.toString());
     }
 }

@@ -17,7 +17,7 @@ public class DeepSearchAsyncTask extends SearchWordAsyncTask {
 
     @Override
     protected String getWordDefinitionOffline() {
-        String definition = db.getDeepSearchResultsHtml(word, 20);
+        String definition = db.getDeepSearchResultsHtml(word, 100);
         if (definition == null) {
             definition = "Deep search not found: " + word;
         }
