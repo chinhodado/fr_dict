@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.webkit.WebView;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Pattern;
 
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
@@ -15,6 +17,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
     protected String highlight;
     protected Context context;
     protected BaseDictionarySqliteDatabase db;
+    protected static LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>(1);
 
     /**
      * Constructor
@@ -48,7 +51,11 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
 
     @Override
     protected String doInBackground(Void... params) {
-        return getWordDefinitionOffline();
+        String definition = db.getWordDefinition(word);
+        if (definition == null) {
+            definition = "Word not found: " + word;
+        }
+        return definition;
     }
 
     @Override
@@ -74,11 +81,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
         webView.requestFocus();
     }
 
-    protected String getWordDefinitionOffline() {
-        String definition = db.getWordDefinition(word);
-        if (definition == null) {
-            definition = "Word not found: " + word;
-        }
-        return definition;
+    public static BlockingQueue<String> getSignalQueue() {
+        return queue;
     }
 }

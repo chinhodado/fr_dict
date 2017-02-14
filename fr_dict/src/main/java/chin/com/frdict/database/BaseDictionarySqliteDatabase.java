@@ -18,12 +18,12 @@ import android.widget.Toast;
 
 public class BaseDictionarySqliteDatabase {
     protected SQLiteDatabase db;
-    protected static Context context;
+    protected Context context;
     public String dictName;
     public String databaseFileName;
 
     protected BaseDictionarySqliteDatabase(Context context, String dictName, String databaseFileName) {
-        BaseDictionarySqliteDatabase.context = context;
+        this.context = context;
         this.dictName = dictName;
         this.databaseFileName = databaseFileName;
     }

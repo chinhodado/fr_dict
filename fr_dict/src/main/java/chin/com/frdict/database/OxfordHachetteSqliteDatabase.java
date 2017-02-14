@@ -13,13 +13,13 @@ import chin.com.frdict.R;
  */
 public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
     public static int DATABASE_VERSION = 20151206;
-    protected static BaseDictionarySqliteDatabase instance;
+    protected static OxfordHachetteSqliteDatabase instance;
 
     private OxfordHachetteSqliteDatabase(Context context) {
         super(context, "Oxford Hachette FR-EN", "oxford_hachette_v3.db");
     }
 
-    public static BaseDictionarySqliteDatabase getInstance(Context context) {
+    public static OxfordHachetteSqliteDatabase getInstance(Context context) {
         if (instance == null) {
             OxfordHachetteSqliteDatabase dbHelper = new OxfordHachetteSqliteDatabase(context);
             File file = new File(dbHelper.getDatabasePath());

@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+import chin.com.frdict.AccentInsensitiveFilterArrayAdapter;
 import chin.com.frdict.ChatHeadService;
 import chin.com.frdict.R;
 import chin.com.frdict.Utility;
@@ -33,7 +34,7 @@ import chin.com.frdict.tab.PagerSlidingTabStrip;
 
 public class DictionaryActivity extends FragmentActivity {
     public static boolean active = false;
-    public static DictionaryActivity instance;
+    public static DictionaryActivity INSTANCE;
     public static WebView webViewWiktionary, webViewOxfordHachette;
     public AutoCompleteTextView edt;
     TextToSpeech tts;
@@ -47,14 +48,15 @@ public class DictionaryActivity extends FragmentActivity {
         Log.i(Utility.LogTag, "DictionaryActivity onCreate()");
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        instance = DictionaryActivity.this;
+        INSTANCE = DictionaryActivity.this;
 
         setContentView(R.layout.activity_dict);
 
         // edit text
         edt = (AutoCompleteTextView) findViewById(R.id.dialog_edt);
-        if (ChatHeadService.adapter != null) {
-            edt.setAdapter(ChatHeadService.adapter);
+        AccentInsensitiveFilterArrayAdapter adapter = ChatHeadService.INSTANCE.getAdapter();
+        if (adapter != null) {
+            edt.setAdapter(adapter);
         }
         edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -62,7 +64,7 @@ public class DictionaryActivity extends FragmentActivity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
                     if (str.length() > 0) {
-                        ChatHeadService.searchWord(str);
+                        ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
                     }
 
                     // hide the keyboard
@@ -77,7 +79,7 @@ public class DictionaryActivity extends FragmentActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name = (String)parent.getItemAtPosition(position);
-                ChatHeadService.searchWord(name);
+                ChatHeadService.INSTANCE.getSearchManager().searchWord(name);
 
                 // hide the keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -92,7 +94,7 @@ public class DictionaryActivity extends FragmentActivity {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    ChatHeadService.searchWord(str);
+                    ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
                 }
 
                 // hide the keyboard
@@ -108,7 +110,7 @@ public class DictionaryActivity extends FragmentActivity {
             public void onClick(View v) {
                 String str = edt.getText().toString();
                 if (str.length() > 0) {
-                    ChatHeadService.deepSearch(str);
+                    ChatHeadService.INSTANCE.getSearchManager().deepSearch(str);
                 }
 
                 // hide the keyboard
@@ -164,9 +166,9 @@ public class DictionaryActivity extends FragmentActivity {
         // tabs
         PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
-        DictionaryPagerAdapter adapter = new DictionaryPagerAdapter(getSupportFragmentManager());
+        DictionaryPagerAdapter pagerAdapter = new DictionaryPagerAdapter(getSupportFragmentManager());
 
-        pager.setAdapter(adapter);
+        pager.setAdapter(pagerAdapter);
 
         final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
         pager.setPageMargin(pageMargin);
@@ -181,13 +183,11 @@ public class DictionaryActivity extends FragmentActivity {
         super.onResume();
         active = true;
 
-        if (ChatHeadService.adapter == null) {
-            // AutoCompleteTextView is not ready yet
-        }
-        else {
-            Adapter adapter = edt.getAdapter();
-            if (adapter == null) {
-                edt.setAdapter(ChatHeadService.adapter);
+        AccentInsensitiveFilterArrayAdapter adapter = ChatHeadService.INSTANCE.getAdapter();
+        if (adapter != null) {
+            Adapter edtAdapter = edt.getAdapter();
+            if (edtAdapter == null) {
+                edt.setAdapter(adapter);
             }
         }
 
@@ -206,7 +206,7 @@ public class DictionaryActivity extends FragmentActivity {
         if (bundle != null) {
             String str = bundle.getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
             if (str != null && !str.equals("")) {
-                ChatHeadService.searchWord(str);
+                ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
                 edt.setText(str);
             }
         }

@@ -20,24 +20,21 @@ import java.util.List;
 
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.SettingsActivity;
-import chin.com.frdict.asyncTask.DeepSearchAsyncTask;
-import chin.com.frdict.asyncTask.SearchWordAsyncTask;
-import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
 public class ChatHeadService extends Service {
     public static WindowManager windowManager;
-    public static ChatHeadService instance;
-    ClipboardManager clipMan;
-    static boolean hasClipChangedListener = false;
+    public static ChatHeadService INSTANCE;
+    private ClipboardManager clipMan;
+    private static boolean hasClipChangedListener = false;
 
     // dictionaries
-    public static BaseDictionarySqliteDatabase wiktionaryDb;
-    public static BaseDictionarySqliteDatabase oxfordHachetteDb;
+    private WiktionarySqliteDatabase wiktionaryDb;
+    private OxfordHachetteSqliteDatabase oxfordHachetteDb;
 
     // word list
-    public static AccentInsensitiveFilterArrayAdapter adapter;
+    private AccentInsensitiveFilterArrayAdapter adapter;
 
     public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
 
@@ -45,6 +42,8 @@ public class ChatHeadService extends Service {
 
     // time to create the adapter, in ms, for benchmarking purposes
     private long createAdapterTime;
+
+    private SearchManager searchManager;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -75,13 +74,15 @@ public class ChatHeadService extends Service {
 
                 // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
                 if (!DictionaryActivity.active) {
+                    // TODO: why do we need to do this?
+                    searchManager.cancelTasks();
                     Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra(INTENT_FROM_CLIPBOARD, str);
                     startActivity(intent);
                 }
                 else {
-                    ChatHeadService.searchWord(str);
-                    DictionaryActivity.instance.edt.setText(str);
+                    searchManager.searchWord(str);
+                    DictionaryActivity.INSTANCE.edt.setText(str);
                 }
             }
         }
@@ -91,11 +92,13 @@ public class ChatHeadService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(Utility.LogTag, "ChatHeadService.onCreate()");
-        instance = this;
+        INSTANCE = this;
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        ChatHeadService.wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
-        ChatHeadService.oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
+        wiktionaryDb = WiktionarySqliteDatabase.getInstance(this);
+        oxfordHachetteDb = OxfordHachetteSqliteDatabase.getInstance(this);
+
+        searchManager = new SearchManager(this, wiktionaryDb, oxfordHachetteDb);
 
         printDbTableList();
 
@@ -109,7 +112,7 @@ public class ChatHeadService extends Service {
                     Log.i("frdict", "End getting word list, start creating adapter");
 
                     long start = System.currentTimeMillis();
-                    List<String> accentRemovedList = ChatHeadService.wiktionaryDb.getNoAccentWordList();
+                    List<String> accentRemovedList = wiktionaryDb.getNoAccentWordList();
                     long end = System.currentTimeMillis();
                     createAdapterTime = (end - start);
                     Log.i("frdict", "AccentInsensitiveFilterArrayAdapter - creating accentRemovedList time: " + createAdapterTime + "ms");
@@ -159,35 +162,35 @@ public class ChatHeadService extends Service {
                 switch (action) {
                     case actionToogleOpen:
                         if (DictionaryActivity.active) {
-                            DictionaryActivity.instance.moveTaskToBack(true);
+                            DictionaryActivity.INSTANCE.moveTaskToBack(true);
                         } else {
-                            Intent it = new Intent(ChatHeadService.instance, DictionaryActivity.class)
+                            Intent it = new Intent(ChatHeadService.INSTANCE, DictionaryActivity.class)
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            ChatHeadService.instance.startActivity(it);
+                            ChatHeadService.INSTANCE.startActivity(it);
                         }
                         break;
                     case actionSetting:
-                        Intent it = new Intent(ChatHeadService.instance, SettingsActivity.class)
+                        Intent it = new Intent(ChatHeadService.INSTANCE, SettingsActivity.class)
                                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        ChatHeadService.instance.startActivity(it);
+                        ChatHeadService.INSTANCE.startActivity(it);
 
                         // close the notification drawer
                         it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
                         context.sendBroadcast(it);
                         break;
                     case actionDismiss:
-                        if (DictionaryActivity.instance != null) {
+                        if (DictionaryActivity.INSTANCE != null) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                DictionaryActivity.instance.finishAndRemoveTask();
+                                DictionaryActivity.INSTANCE.finishAndRemoveTask();
                             } else {
                                 // This will leave the task in the task list
                                 // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
                                 // and I don't own any pre-lollipop device anyway...
-                                DictionaryActivity.instance.finish();
+                                DictionaryActivity.INSTANCE.finish();
                             }
                         }
 
-                        ChatHeadService.instance.stopSelf();
+                        ChatHeadService.INSTANCE.stopSelf();
                         break;
                 }
             }
@@ -205,27 +208,6 @@ public class ChatHeadService extends Service {
                 .build();
 
         startForeground(1337, notification);
-    }
-
-    public static void searchWord(String word) {
-        new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    public static void searchWordAndHighlight(String word, String highlight) {
-        new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, word, highlight)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        new SearchWordAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, word, highlight)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    public static void deepSearch(String toSearch) {
-        new DeepSearchAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewWiktionary, ChatHeadService.wiktionaryDb, toSearch)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        new DeepSearchAsyncTask(ChatHeadService.instance, DictionaryActivity.webViewOxfordHachette, ChatHeadService.oxfordHachetteDb, toSearch)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -271,12 +253,28 @@ public class ChatHeadService extends Service {
         return null;
     }
 
+    public AccentInsensitiveFilterArrayAdapter getAdapter() {
+        return adapter;
+    }
+
+    public SearchManager getSearchManager() {
+        return searchManager;
+    }
+
+    public WiktionarySqliteDatabase getWiktionaryDb() {
+        return wiktionaryDb;
+    }
+
+    public OxfordHachetteSqliteDatabase getOxfordHachetteDb() {
+        return oxfordHachetteDb;
+    }
+
     public long getCreateAdapterTime() {
         return createAdapterTime;
     }
 
     private void printDbTableList() {
-        List<String> wiktionaryDbTables = ChatHeadService.wiktionaryDb.getTableList();
+        List<String> wiktionaryDbTables = wiktionaryDb.getTableList();
         StringBuilder sb = new StringBuilder();
         for (String s : wiktionaryDbTables) {
             sb.append(s).append(",");
@@ -284,7 +282,7 @@ public class ChatHeadService extends Service {
         sb.setCharAt(sb.length() - 1, ']');
         Log.i("frdict", "wiktionary db table list: [" + sb.toString());
 
-        List<String> oxfordDbTables = ChatHeadService.oxfordHachetteDb.getTableList();
+        List<String> oxfordDbTables = oxfordHachetteDb.getTableList();
         sb = new StringBuilder();
         for (String s : oxfordDbTables) {
             sb.append(s).append(",");

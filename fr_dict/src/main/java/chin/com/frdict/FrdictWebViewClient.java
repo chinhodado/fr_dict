@@ -1,15 +1,9 @@
 package chin.com.frdict;
 
 import android.net.Uri;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import chin.com.frdict.activity.DictionaryActivity;
 
@@ -21,7 +15,7 @@ import chin.com.frdict.activity.DictionaryActivity;
 public class FrdictWebViewClient extends WebViewClient {
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-        Toast.makeText(DictionaryActivity.instance, description, Toast.LENGTH_SHORT).show();
+        Toast.makeText(DictionaryActivity.INSTANCE, description, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -36,17 +30,18 @@ public class FrdictWebViewClient extends WebViewClient {
 
             String highlight = parsed.getQueryParameter("highlight");
             String deepSearch = parsed.getQueryParameter("deepSearch");
+            SearchManager searchManager = ChatHeadService.INSTANCE.getSearchManager();
             if (deepSearch != null) {
-                ChatHeadService.deepSearch(word);
+                searchManager.deepSearch(word);
             }
             else if (highlight == null) {
-                ChatHeadService.searchWord(word);
+                searchManager.searchWord(word);
             }
             else {
-                ChatHeadService.searchWordAndHighlight(word, highlight);
+                searchManager.searchWordAndHighlight(word, highlight);
             }
 
-            DictionaryActivity.instance.edt.setText(word);
+            DictionaryActivity.INSTANCE.edt.setText(word);
             return true;
         }
         else {

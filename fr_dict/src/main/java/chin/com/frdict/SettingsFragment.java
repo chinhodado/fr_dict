@@ -22,6 +22,6 @@ public class SettingsFragment extends PreferenceFragment {
         versionPref.setSummary(versionName);
 
         Preference timeAdapterPref = findPreference("pref_createAdapterTime");
-        timeAdapterPref.setSummary(ChatHeadService.instance.getCreateAdapterTime() + "ms");
+        timeAdapterPref.setSummary(ChatHeadService.INSTANCE.getCreateAdapterTime() + "ms");
     }
 }

@@ -17,7 +17,9 @@ import chin.com.frdict.R;
 import chin.com.frdict.Utility;
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.DictionaryActivity.Dictionary;
+import chin.com.frdict.asyncTask.OxfordHachetteSearchWordAsyncTask;
 import chin.com.frdict.asyncTask.SearchWordAsyncTask;
+import chin.com.frdict.asyncTask.WiktionarySearchWordAsyncTask;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 public class DictionaryTabFragment extends Fragment {
@@ -49,12 +51,12 @@ public class DictionaryTabFragment extends Fragment {
         if (type == Dictionary.Wiktionary) {
             DictionaryActivity.webViewWiktionary = (WebView) view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewWiktionary;
-            dict = ChatHeadService.wiktionaryDb;
+            dict = ChatHeadService.INSTANCE.getWiktionaryDb();
         }
         else {
             DictionaryActivity.webViewOxfordHachette = (WebView) view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewOxfordHachette;
-            dict = ChatHeadService.oxfordHachetteDb;
+            dict = ChatHeadService.INSTANCE.getOxfordHachetteDb();
         }
 
         webview.getSettings().setJavaScriptEnabled(true);
@@ -78,8 +80,18 @@ public class DictionaryTabFragment extends Fragment {
         }
 
         if (word != null) {
-            new SearchWordAsyncTask(ChatHeadService.instance, webview, dict, word).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            DictionaryActivity.instance.edt.setText(word);
+            // TODO: this is very bad! we're not managing the tasks through search manager
+            // FIX THIS!
+            if (type == Dictionary.Wiktionary) {
+                new WiktionarySearchWordAsyncTask(ChatHeadService.INSTANCE, webview, dict, word)
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+            else if (type == Dictionary.OxfordHachette) {
+                new OxfordHachetteSearchWordAsyncTask(ChatHeadService.INSTANCE, webview, dict, word)
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+
+            DictionaryActivity.INSTANCE.edt.setText(word);
         }
     }
 }

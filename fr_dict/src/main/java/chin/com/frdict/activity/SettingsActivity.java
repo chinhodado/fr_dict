@@ -2,9 +2,7 @@ package chin.com.frdict.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.preference.Preference;
 
-import chin.com.frdict.R;
 import chin.com.frdict.SettingsFragment;
 
 /**
