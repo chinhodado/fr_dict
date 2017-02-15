@@ -73,6 +73,8 @@ public class ChatHeadService extends Service {
                         str = str.substring(2);
                     }
 
+                    str = str.toLowerCase();
+
                     // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
                     if (!DictionaryActivity.active) {
                         // TODO: why do we need to do this?
