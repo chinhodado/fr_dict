@@ -51,39 +51,45 @@ public class ChatHeadService extends Service {
     ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new ClipboardManager.OnPrimaryClipChangedListener() {
         @Override
         public void onPrimaryClipChanged() {
-            String str = (String) clipMan.getText();
-            if (str != null && str.trim().length() > 0) {
-                str = str.trim();
+            try {
+                String str = (String) clipMan.getText();
+                if (str != null && str.trim().length() > 0) {
+                    str = str.trim();
 
-                // don't react to links
-                if (str.startsWith("http")) {
-                    return;
+                    // don't react to links
+                    if (str.startsWith("http")) {
+                        return;
+                    }
+
+                    // trim , . ; at the end
+                    str = str.replaceAll("(,|\\.|;)+$", "");
+
+                    // trim , . ; at the beginning
+                    str = str.replaceAll("^(,|\\.|;)+", "");
+
+                    // deal with "words" like t'aime, m'appelle, s'occuper, etc.
+                    char second = str.charAt(1);
+                    if (second == '\'' || second == '’') {
+                        str = str.substring(2);
+                    }
+
+                    // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
+                    if (!DictionaryActivity.active) {
+                        // TODO: why do we need to do this?
+                        searchManager.cancelTasks();
+                        Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra(INTENT_FROM_CLIPBOARD, str);
+                        startActivity(intent);
+                    }
+                    else {
+                        searchManager.searchWord(str);
+                        DictionaryActivity.INSTANCE.edt.setText(str);
+                    }
                 }
-
-                // trim , . ; at the end
-                str = str.replaceAll("(,|\\.|;)+$", "");
-
-                // trim , . ; at the beginning
-                str = str.replaceAll("^(,|\\.|;)+", "");
-
-                // deal with "words" like t'aime, m'appelle, s'occuper, etc.
-                char second = str.charAt(1);
-                if (second == '\'' || second == '’') {
-                    str = str.substring(2);
-                }
-
-                // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
-                if (!DictionaryActivity.active) {
-                    // TODO: why do we need to do this?
-                    searchManager.cancelTasks();
-                    Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(INTENT_FROM_CLIPBOARD, str);
-                    startActivity(intent);
-                }
-                else {
-                    searchManager.searchWord(str);
-                    DictionaryActivity.INSTANCE.edt.setText(str);
-                }
+            }
+            catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "frdict: An error occured", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
             }
         }
     };
