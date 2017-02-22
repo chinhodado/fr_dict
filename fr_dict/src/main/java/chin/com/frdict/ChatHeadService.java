@@ -52,7 +52,7 @@ public class ChatHeadService extends Service {
         @Override
         public void onPrimaryClipChanged() {
             try {
-                String str = (String) clipMan.getText();
+                String str = clipMan.getText().toString();
                 if (str != null && str.trim().length() > 0) {
                     str = str.trim();
 
