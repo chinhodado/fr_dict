@@ -100,6 +100,13 @@ public class MainActivity extends Activity {
         }
         else {
             Log.i("frdict", "Service is already running");
+
+            // if the service is already running, we should show the dict activity
+            if (!DictionaryActivity.active) {
+                Intent it = new Intent(ChatHeadService.INSTANCE, DictionaryActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                ChatHeadService.INSTANCE.startActivity(it);
+            }
         }
     }
 }
