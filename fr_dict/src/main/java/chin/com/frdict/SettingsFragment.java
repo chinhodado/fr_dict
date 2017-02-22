@@ -17,9 +17,11 @@ public class SettingsFragment extends PreferenceFragment {
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
-        String versionName = BuildConfig.VERSION_NAME;
         Preference versionPref = findPreference("pref_version");
-        versionPref.setSummary(versionName);
+        versionPref.setSummary(BuildConfig.VERSION_NAME);
+
+        Preference gitPref = findPreference("pref_git");
+        gitPref.setSummary(BuildConfig.GIT_HASH);
 
         Preference timeAdapterPref = findPreference("pref_createAdapterTime");
         timeAdapterPref.setSummary(ChatHeadService.INSTANCE.getCreateAdapterTime() + "ms");

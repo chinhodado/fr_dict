@@ -13,4 +13,11 @@
         android:persistent="false"
         android:title="Version"
         android:summary=""/>
+
+    <Preference
+        android:key="pref_git"
+        android:selectable="true"
+        android:persistent="false"
+        android:title="git revision"
+        android:summary=""/>
 </PreferenceScreen>

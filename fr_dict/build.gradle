@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -10,6 +19,7 @@ android {
         targetSdkVersion 25
         versionCode 3
         versionName "2.1"
+        buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
     }
 
     buildTypes {
