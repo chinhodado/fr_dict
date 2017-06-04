@@ -61,6 +61,11 @@ public class ChatHeadService extends Service {
                         return;
                     }
 
+                    // ignore anything that contains a number
+                    if (str.matches(".*\\d+.*")) {
+                        return;
+                    }
+
                     // trim , . ; at the end
                     str = str.replaceAll("(,|\\.|;)+$", "");
 
