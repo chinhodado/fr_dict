@@ -18,7 +18,6 @@ import chin.com.frdict.Utility;
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.DictionaryActivity.Dictionary;
 import chin.com.frdict.asyncTask.OxfordHachetteSearchWordAsyncTask;
-import chin.com.frdict.asyncTask.SearchWordAsyncTask;
 import chin.com.frdict.asyncTask.WiktionarySearchWordAsyncTask;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
@@ -49,12 +48,12 @@ public class DictionaryTabFragment extends Fragment {
 
         // web views
         if (type == Dictionary.Wiktionary) {
-            DictionaryActivity.webViewWiktionary = (WebView) view.findViewById(R.id.webView_dict);
+            DictionaryActivity.webViewWiktionary = view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewWiktionary;
             dict = ChatHeadService.INSTANCE.getWiktionaryDb();
         }
         else {
-            DictionaryActivity.webViewOxfordHachette = (WebView) view.findViewById(R.id.webView_dict);
+            DictionaryActivity.webViewOxfordHachette = view.findViewById(R.id.webView_dict);
             webview = DictionaryActivity.webViewOxfordHachette;
             dict = ChatHeadService.INSTANCE.getOxfordHachetteDb();
         }

@@ -53,7 +53,7 @@ public class DictionaryActivity extends FragmentActivity {
         setContentView(R.layout.activity_dict);
 
         // edit text
-        edt = (AutoCompleteTextView) findViewById(R.id.dialog_edt);
+        edt = findViewById(R.id.dialog_edt);
         AccentInsensitiveFilterArrayAdapter adapter = ChatHeadService.INSTANCE.getAdapter();
         if (adapter != null) {
             edt.setAdapter(adapter);
@@ -88,7 +88,7 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // search image
-        final ImageView searchImg = (ImageView) findViewById(R.id.imageView_search);
+        final ImageView searchImg = findViewById(R.id.imageView_search);
         searchImg.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +104,7 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // deep search image
-        final ImageView deepSearchImg = (ImageView) findViewById(R.id.imageView_deepSearch);
+        final ImageView deepSearchImg = findViewById(R.id.imageView_deepSearch);
         deepSearchImg.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,7 +129,7 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // fullscreen image
-        final ImageView fullscreenImg = (ImageView) findViewById(R.id.imageView_fullscreen);
+        final ImageView fullscreenImg = findViewById(R.id.imageView_fullscreen);
         fullscreenImg.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,7 +154,7 @@ public class DictionaryActivity extends FragmentActivity {
                 }
             }
         });
-        ImageView speaker = (ImageView) findViewById(R.id.imageView_speaker);
+        ImageView speaker = findViewById(R.id.imageView_speaker);
         speaker.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,8 +164,8 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // tabs
-        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        PagerSlidingTabStrip tabs = findViewById(R.id.tabs);
+        ViewPager pager = findViewById(R.id.pager);
         DictionaryPagerAdapter pagerAdapter = new DictionaryPagerAdapter(getSupportFragmentManager());
 
         pager.setAdapter(pagerAdapter);

@@ -12,7 +12,7 @@ import chin.com.frdict.R;
  * @author Chin
  */
 public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
-    public static int DATABASE_VERSION = 20151206;
+    public static final int DATABASE_VERSION = 20151206;
     protected static OxfordHachetteSqliteDatabase instance;
 
     private OxfordHachetteSqliteDatabase(Context context) {

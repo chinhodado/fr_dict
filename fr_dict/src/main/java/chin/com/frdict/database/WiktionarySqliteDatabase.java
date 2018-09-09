@@ -1,14 +1,10 @@
 package chin.com.frdict.database;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
+
+import java.io.File;
 
 /**
  * Helper class for working with the Wiktionary database

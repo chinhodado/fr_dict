@@ -67,10 +67,10 @@ public class ChatHeadService extends Service {
                     }
 
                     // trim , . ; at the end
-                    str = str.replaceAll("(,|\\.|;)+$", "");
+                    str = str.replaceAll("([,.;])+$", "");
 
                     // trim , . ; at the beginning
-                    str = str.replaceAll("^(,|\\.|;)+", "");
+                    str = str.replaceAll("^([,.;])+", "");
 
                     // deal with "words" like t'aime, m'appelle, s'occuper, etc.
                     char second = str.charAt(1);
@@ -148,12 +148,12 @@ public class ChatHeadService extends Service {
 
         // add the notification and actions
         // not sure if this is the correct way for adding new actions...
-        final String actionToogleOpen = "ACTION_TOOGLE_OPEN";
+        final String actionToggleOpen = "ACTION_TOGGLE_OPEN";
         final String actionDismiss = "ACTION_DISMISS";
         final String actionSetting = "ACTION_SETTING";
 
-        Intent toogleOpenIntent = new Intent(actionToogleOpen);
-        PendingIntent piToogleOpen = PendingIntent.getBroadcast(this, 0, toogleOpenIntent, 0);
+        Intent toggleOpenIntent = new Intent(actionToggleOpen);
+        PendingIntent piToggleOpen = PendingIntent.getBroadcast(this, 0, toggleOpenIntent, 0);
 
         Intent dismissIntent = new Intent(actionDismiss);
         dismissIntent.setAction(actionDismiss);
@@ -164,7 +164,7 @@ public class ChatHeadService extends Service {
         PendingIntent piSetting = PendingIntent.getBroadcast(this, 0, settingIntent, 0);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(actionToogleOpen);
+        filter.addAction(actionToggleOpen);
         filter.addAction(actionDismiss);
         filter.addAction(actionSetting);
 
@@ -173,7 +173,7 @@ public class ChatHeadService extends Service {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 switch (action) {
-                    case actionToogleOpen:
+                    case actionToggleOpen:
                         if (DictionaryActivity.active) {
                             DictionaryActivity.INSTANCE.moveTaskToBack(true);
                         } else {
@@ -215,7 +215,7 @@ public class ChatHeadService extends Service {
                 .setSmallIcon(R.drawable.circle)
                 .setContentTitle("frdict is running")
                 .setContentText("Click to show/hide the dictionary")
-                .setContentIntent(piToogleOpen)
+                .setContentIntent(piToggleOpen)
                 .addAction(android.R.drawable.ic_menu_preferences, "Settings", piSetting)
                 .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
                 .build();

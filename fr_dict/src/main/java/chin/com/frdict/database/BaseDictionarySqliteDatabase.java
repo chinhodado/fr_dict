@@ -145,7 +145,7 @@ public class BaseDictionarySqliteDatabase {
                 // Split the query into chunks of 10000 each. This avoids the "CursorWindow Window is full" warning and is
                 // a lot faster than getting everything in one go (about three times faster)
                 Log.i("frdict", dictName + " - allWords cache file not found, building word list from scratch");
-                wordList = new ArrayList<String>(numEntries);
+                wordList = new ArrayList<>(numEntries);
                 int chunkSize = 10000;
                 int iterations = (int) Math.ceil((double)numEntries / chunkSize);
                 for (int i = 0; i < iterations; i++) {
