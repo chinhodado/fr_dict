@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/dialog_edt"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_media_fullscreen" />
+            android:src="@drawable/baseline_more_vert_black_18dp" />
     </RelativeLayout>
     
     <LinearLayout

@@ -10,6 +10,8 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -21,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -133,13 +136,22 @@ public class DictionaryActivity extends FragmentActivity {
         fullscreenImg.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                int visibility = top.getVisibility();
-                if (visibility == View.GONE) {
-                    top.setVisibility(View.VISIBLE);
-                }
-                else if (visibility == View.VISIBLE) {
-                    top.setVisibility(View.GONE);
-                }
+                PopupMenu popup = new PopupMenu(INSTANCE, v);
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.menu_fullscreen:
+                                toggleFullScreen(top);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu, popup.getMenu());
+                popup.show();
             }
         });
 
@@ -175,6 +187,16 @@ public class DictionaryActivity extends FragmentActivity {
         tabs.setShouldExpand(true); // note: has to be before setViewPager()
         tabs.setViewPager(pager);
         tabs.setIndicatorColor(ContextCompat.getColor(this, R.color.red));
+    }
+
+    private void toggleFullScreen(View top) {
+        int visibility = top.getVisibility();
+        if (visibility == View.GONE) {
+            top.setVisibility(View.VISIBLE);
+        }
+        else if (visibility == View.VISIBLE) {
+            top.setVisibility(View.GONE);
+        }
     }
 
     @Override
