@@ -3,6 +3,7 @@ package chin.com.frdict;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.SettingsActivity;
+import chin.com.frdict.database.AppDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
@@ -44,6 +46,8 @@ public class ChatHeadService extends Service {
     private long createAdapterTime;
 
     private SearchManager searchManager;
+
+    private AppDatabase appDatabase;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -220,7 +224,14 @@ public class ChatHeadService extends Service {
                 .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
                 .build();
 
+//        appDatabase = Room.databaseBuilder(getApplicationContext(),
+//                AppDatabase.class, "frdict-database").build();
+
         startForeground(1337, notification);
+    }
+
+    public AppDatabase getAppDatabase() {
+        return appDatabase;
     }
 
     @Override

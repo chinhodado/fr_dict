@@ -11,7 +11,8 @@
         android:allowBackup="true"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name="chin.com.frdict.activity.MainActivity"
             android:label="@string/app_name"
@@ -39,6 +40,7 @@
         <activity
             android:name="chin.com.frdict.activity.SettingsActivity"
             android:windowSoftInputMode="stateHidden"/>
+        <activity android:name=".activity.RecentSearchActivity" />
 
         <service android:name="chin.com.frdict.ChatHeadService" />
     </application>

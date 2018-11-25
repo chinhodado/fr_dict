@@ -9,7 +9,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import chin.com.frdict.database.AppDatabase;
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
+import chin.com.frdict.database.SearchItem;
 
 /**
  * Specialized task for searching wiktionary
@@ -61,6 +63,9 @@ public class WiktionarySearchWordAsyncTask extends SearchWordAsyncTask {
 
         if (definition == null) {
             definition = "Word not found: " + word;
+        }
+        else {
+            AppDatabase.getDatabase(context).recentSearchDao().insertAll(new SearchItem(word));
         }
 
         // use the queue to signal the other tasks

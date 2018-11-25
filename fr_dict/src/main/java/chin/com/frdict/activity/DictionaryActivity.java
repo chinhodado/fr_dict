@@ -26,12 +26,15 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.Locale;
 
 import chin.com.frdict.AccentInsensitiveFilterArrayAdapter;
 import chin.com.frdict.ChatHeadService;
 import chin.com.frdict.R;
 import chin.com.frdict.Utility;
+import chin.com.frdict.database.AppDatabase;
+import chin.com.frdict.database.SearchItem;
 import chin.com.frdict.tab.DictionaryPagerAdapter;
 import chin.com.frdict.tab.PagerSlidingTabStrip;
 
@@ -141,6 +144,9 @@ public class DictionaryActivity extends FragmentActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
+                            case R.id.menu_searchhistory:
+                                onSearchHistoryMenuItemSelected();
+                                return true;
                             case R.id.menu_fullscreen:
                                 toggleFullScreen(top);
                                 return true;
@@ -187,6 +193,12 @@ public class DictionaryActivity extends FragmentActivity {
         tabs.setShouldExpand(true); // note: has to be before setViewPager()
         tabs.setViewPager(pager);
         tabs.setIndicatorColor(ContextCompat.getColor(this, R.color.red));
+    }
+
+    private void onSearchHistoryMenuItemSelected() {
+        Intent it = new Intent(ChatHeadService.INSTANCE, RecentSearchActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ChatHeadService.INSTANCE.startActivity(it);
     }
 
     private void toggleFullScreen(View top) {
