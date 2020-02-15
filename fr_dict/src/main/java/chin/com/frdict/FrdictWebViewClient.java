@@ -9,7 +9,7 @@ import chin.com.frdict.activity.DictionaryActivity;
 
 /**
  * Custom WebViewClient for the app, most notably supports the frdict:// protocol.
- *
+ * <p>
  * Created by Chin on 05-Nov-16.
  */
 public class FrdictWebViewClient extends WebViewClient {

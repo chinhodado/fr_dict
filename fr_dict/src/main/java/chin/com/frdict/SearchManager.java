@@ -13,16 +13,16 @@ import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
 /**
- * Perform search by delegating work to asynctask
- *
+ * Perform search by delegating work to AsyncTask
+ * <p>
  * Created by Chin on 01-Feb-17.
  */
 public class SearchManager {
     private WiktionarySearchWordAsyncTask wiktionaryTask;
     private OxfordHachetteSearchWordAsyncTask oxfordTask;
-    private BaseDictionarySqliteDatabase wiktionaryDb;
-    private BaseDictionarySqliteDatabase oxfordDb;
-    private Context context;
+    private final BaseDictionarySqliteDatabase wiktionaryDb;
+    private final BaseDictionarySqliteDatabase oxfordDb;
+    private final Context context;
 
     public SearchManager(Context context, WiktionarySqliteDatabase wiktionaryDb, OxfordHachetteSqliteDatabase oxfordDb) {
         this.wiktionaryDb = wiktionaryDb;

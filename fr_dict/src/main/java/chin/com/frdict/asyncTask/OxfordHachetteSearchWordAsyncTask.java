@@ -8,7 +8,7 @@ import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 /**
  * Specialized task for Oxford Hachette
- *
+ * <p>
  * Created by Chin on 01-Feb-17.
  */
 public class OxfordHachetteSearchWordAsyncTask extends SearchWordAsyncTask {

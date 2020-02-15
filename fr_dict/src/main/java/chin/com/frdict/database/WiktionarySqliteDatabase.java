@@ -12,7 +12,7 @@ import java.io.File;
  */
 public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
     public static final int DATABASE_VERSION = 20151114;
-    protected static WiktionarySqliteDatabase instance;
+    private static WiktionarySqliteDatabase instance;
 
     private WiktionarySqliteDatabase(Context context) {
         super(context, "Wiktionary FR-EN", "wiktionary_fren.db");

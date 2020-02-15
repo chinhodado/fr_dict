@@ -18,9 +18,9 @@ import android.widget.Toast;
 
 public class BaseDictionarySqliteDatabase {
     protected SQLiteDatabase db;
-    protected Context context;
-    public String dictName;
-    public String databaseFileName;
+    protected final Context context;
+    protected final String dictName;
+    protected final String databaseFileName;
 
     protected BaseDictionarySqliteDatabase(Context context, String dictName, String databaseFileName) {
         this.context = context;
@@ -75,7 +75,7 @@ public class BaseDictionarySqliteDatabase {
         return definition;
     }
 
-    public List<String> getDeepSeachResults(String toSearch, int limit) {
+    public List<String> getDeepSearchResults(String toSearch, int limit) {
         long start = System.currentTimeMillis();
 
         List<String> results = new ArrayList<>();
@@ -108,7 +108,7 @@ public class BaseDictionarySqliteDatabase {
     }
 
     public String getDeepSearchResultsHtml(String toSearch, int limit) {
-        List<String> results = getDeepSeachResults(toSearch, limit);
+        List<String> results = getDeepSearchResults(toSearch, limit);
         StringBuilder sb = new StringBuilder();
         sb.append("Deep search result for " + toSearch + ": <br>");
         for (String s : results) {

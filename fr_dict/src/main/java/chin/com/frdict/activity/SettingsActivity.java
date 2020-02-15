@@ -7,7 +7,7 @@ import chin.com.frdict.SettingsFragment;
 
 /**
  * Settings Activity
- *
+ * <p>
  * Created by Chin on 20-Nov-16.
  */
 public class SettingsActivity extends Activity {

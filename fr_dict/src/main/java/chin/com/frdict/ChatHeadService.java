@@ -1,5 +1,6 @@
 package chin.com.frdict;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -29,10 +30,17 @@ import chin.com.frdict.activity.SettingsActivity;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
+/**
+ * Main service for the app. Runs as a foreground service.
+ */
 public class ChatHeadService extends Service {
 
     private static final String NOTIFICATION_CHANNEL_ID = "chin.com.frdict";
     public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
+
+    private static final String ACTION_TOGGLE_OPEN = "ACTION_TOGGLE_OPEN";
+    private static final String ACTION_DISMISS = "ACTION_DISMISS";
+    private static final String ACTION_SETTING = "ACTION_SETTING";
 
     public static WindowManager windowManager;
     public static ChatHeadService INSTANCE;
@@ -138,29 +146,8 @@ public class ChatHeadService extends Service {
 
         if (adapter == null) {
             Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is initializing", Toast.LENGTH_SHORT).show();
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    Log.i("frdict", "Start getting word list");
-                    List<String> wordList = wiktionaryDb.getWordList();
-                    Log.i("frdict", "End getting word list, start creating adapter");
-
-                    long start = System.currentTimeMillis();
-                    List<String> accentRemovedList = wiktionaryDb.getNoAccentWordList();
-                    long end = System.currentTimeMillis();
-                    createAdapterTime = (end - start);
-                    Log.i("frdict", "AccentInsensitiveFilterArrayAdapter - creating accentRemovedList time: " + createAdapterTime + "ms");
-
-                    adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList, accentRemovedList);
-                    Log.i("frdict", "End creating adapter");
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void param) {
-                    Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
-                }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            AsyncTask<Void, Void, Void> asyncTask = new PopulateWordListAsyncTask();
+            asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
         // automatically search word when copy to clipboard
@@ -169,67 +156,24 @@ public class ChatHeadService extends Service {
 
         // add the notification and actions
         // not sure if this is the correct way for adding new actions...
-        final String actionToggleOpen = "ACTION_TOGGLE_OPEN";
-        final String actionDismiss = "ACTION_DISMISS";
-        final String actionSetting = "ACTION_SETTING";
 
-        Intent toggleOpenIntent = new Intent(actionToggleOpen);
+        Intent toggleOpenIntent = new Intent(ACTION_TOGGLE_OPEN);
         PendingIntent piToggleOpen = PendingIntent.getBroadcast(this, 0, toggleOpenIntent, 0);
 
-        Intent dismissIntent = new Intent(actionDismiss);
-        dismissIntent.setAction(actionDismiss);
+        Intent dismissIntent = new Intent(ACTION_DISMISS);
+        dismissIntent.setAction(ACTION_DISMISS);
         PendingIntent piDismiss = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
 
-        Intent settingIntent = new Intent(actionSetting);
-        settingIntent.setAction(actionSetting);
+        Intent settingIntent = new Intent(ACTION_SETTING);
+        settingIntent.setAction(ACTION_SETTING);
         PendingIntent piSetting = PendingIntent.getBroadcast(this, 0, settingIntent, 0);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(actionToggleOpen);
-        filter.addAction(actionDismiss);
-        filter.addAction(actionSetting);
+        filter.addAction(ACTION_TOGGLE_OPEN);
+        filter.addAction(ACTION_DISMISS);
+        filter.addAction(ACTION_SETTING);
 
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                switch (action) {
-                    case actionToggleOpen:
-                        if (DictionaryActivity.active) {
-                            DictionaryActivity.INSTANCE.moveTaskToBack(true);
-                        } else {
-                            Intent it = new Intent(ChatHeadService.INSTANCE, DictionaryActivity.class)
-                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            ChatHeadService.INSTANCE.startActivity(it);
-                        }
-                        break;
-                    case actionSetting:
-                        Intent it = new Intent(ChatHeadService.INSTANCE, SettingsActivity.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        ChatHeadService.INSTANCE.startActivity(it);
-
-                        // close the notification drawer
-                        it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-                        context.sendBroadcast(it);
-                        break;
-                    case actionDismiss:
-                        if (DictionaryActivity.INSTANCE != null) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                DictionaryActivity.INSTANCE.finishAndRemoveTask();
-                            } else {
-                                // This will leave the task in the task list
-                                // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
-                                // and I don't own any pre-lollipop device anyway...
-                                DictionaryActivity.INSTANCE.finish();
-                            }
-                        }
-
-                        ChatHeadService.INSTANCE.stopSelf();
-                        break;
-                }
-            }
-        };
-
+        receiver = new FrDictBroadcastReceiver();
         registerReceiver(receiver, filter);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -358,5 +302,77 @@ public class ChatHeadService extends Service {
         }
         sb.setCharAt(sb.length() - 1, ']');
         Log.i("frdict", "oxford hachette db table list: [" + sb.toString());
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class PopulateWordListAsyncTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.i("frdict", "Start getting word list");
+            List<String> wordList = wiktionaryDb.getWordList();
+            Log.i("frdict", "End getting word list, start creating adapter");
+
+            long start = System.currentTimeMillis();
+            List<String> accentRemovedList = wiktionaryDb.getNoAccentWordList();
+            long end = System.currentTimeMillis();
+            createAdapterTime = (end - start);
+            Log.i("frdict", "AccentInsensitiveFilterArrayAdapter - creating accentRemovedList time: " + createAdapterTime + "ms");
+
+            adapter = new AccentInsensitiveFilterArrayAdapter(ChatHeadService.this, R.layout.autocomplete_dropdown_item, wordList, accentRemovedList);
+            Log.i("frdict", "End creating adapter");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void param) {
+            Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class FrDictBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            // Just to shut up Android Studio, but can this ever be true?
+            if (action == null) {
+                return;
+            }
+
+            switch (action) {
+                case ACTION_TOGGLE_OPEN:
+                    if (DictionaryActivity.active) {
+                        DictionaryActivity.INSTANCE.moveTaskToBack(true);
+                    } else {
+                        Intent it = new Intent(ChatHeadService.INSTANCE, DictionaryActivity.class)
+                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        ChatHeadService.INSTANCE.startActivity(it);
+                    }
+                    break;
+                case ACTION_SETTING:
+                    Intent it = new Intent(ChatHeadService.INSTANCE, SettingsActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ChatHeadService.INSTANCE.startActivity(it);
+
+                    // close the notification drawer
+                    it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                    context.sendBroadcast(it);
+                    break;
+                case ACTION_DISMISS:
+                    if (DictionaryActivity.INSTANCE != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            DictionaryActivity.INSTANCE.finishAndRemoveTask();
+                        } else {
+                            // This will leave the task in the task list
+                            // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
+                            // and I don't own any pre-lollipop device anyway...
+                            DictionaryActivity.INSTANCE.finish();
+                        }
+                    }
+
+                    ChatHeadService.INSTANCE.stopSelf();
+                    break;
+            }
+        }
     }
 }

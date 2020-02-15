@@ -6,7 +6,7 @@ import android.preference.PreferenceFragment;
 
 /**
  * Settings Fragment
- *
+ * <p>
  * Created by Chin on 20-Nov-16.
  */
 public class SettingsFragment extends PreferenceFragment {

@@ -1,5 +1,6 @@
 package chin.com.frdict.asyncTask;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,32 +12,36 @@ import java.util.regex.Pattern;
 
 import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
+/**
+ * Base AsyncTask for searching a word, then display the definition in a WebView
+ */
 public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
-    protected WebView webView;
-    protected String word;
-    protected String highlight;
-    protected Context context;
-    protected BaseDictionarySqliteDatabase db;
-    protected static LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>(1);
+    @SuppressLint("StaticFieldLeak")
+    protected final WebView webView;
+
+    @SuppressLint("StaticFieldLeak")
+    protected final Context context;
+
+    protected final String word;
+    protected final String highlight;
+    protected final BaseDictionarySqliteDatabase db;
+    protected static final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>(1);
 
     /**
      * Constructor
      * @param context A context
-     * @param webView The webview to display the word definition
+     * @param webView The WebView to display the word definition
      * @param db The database helper to work with an offline database
      * @param word The word to look up
      */
     public SearchWordAsyncTask(Context context, WebView webView, BaseDictionarySqliteDatabase db, String word) {
-        this.context = context;
-        this.webView = webView;
-        this.word = word;
-        this.db = db;
+        this(context, webView, db, word, null);
     }
 
     /**
      * Constructor
      * @param context A context
-     * @param webView The webview to display the word definition
+     * @param webView The WebView to display the word definition
      * @param db The database helper to work with an offline database
      * @param word The word to look up
      * @param highlight The string to highlight and scroll to in the word's definition
@@ -76,7 +81,7 @@ public class SearchWordAsyncTask extends AsyncTask<Void, Void, String> {
 
         webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
 
-        // request focus for the webview to avoid the autocomplete textview popping up its list
+        // request focus for the WebView to avoid the autocomplete TextView popping up its list
         // (which is rather annoying when searching word copied from clipboard)
         webView.requestFocus();
     }

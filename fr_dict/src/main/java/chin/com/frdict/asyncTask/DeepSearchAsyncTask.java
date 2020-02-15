@@ -7,7 +7,7 @@ import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 /**
  * Async task for deep search
- *
+ * <p>
  * Created by Chin on 03-Nov-16.
  */
 public class DeepSearchAsyncTask extends SearchWordAsyncTask {

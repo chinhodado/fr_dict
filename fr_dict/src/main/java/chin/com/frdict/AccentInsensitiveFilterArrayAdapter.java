@@ -17,7 +17,7 @@ import android.widget.Filter;
 @SuppressLint("DefaultLocale")
 public class AccentInsensitiveFilterArrayAdapter extends RegexFilterArrayAdapter<String> {
 
-    protected AccentInsensitiveArrayFilter mFilter;
+    private AccentInsensitiveArrayFilter mFilter;
     private List<String> accentRemovedList;
 
     private static final Pattern DIACRITICS_AND_FRIENDS
@@ -41,9 +41,6 @@ public class AccentInsensitiveFilterArrayAdapter extends RegexFilterArrayAdapter
         return tmp;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Filter getFilter() {
         if (mFilter == null) {
@@ -64,14 +61,14 @@ public class AccentInsensitiveFilterArrayAdapter extends RegexFilterArrayAdapter
 
             if (mOriginalValues == null) {
                 synchronized (mLock) {
-                    mOriginalValues = new ArrayList<String>(mObjects);
+                    mOriginalValues = new ArrayList<>(mObjects);
                 }
             }
 
             if (prefix == null || prefix.length() == 0) {
                 ArrayList<String> list;
                 synchronized (mLock) {
-                    list = new ArrayList<String>(mOriginalValues);
+                    list = new ArrayList<>(mOriginalValues);
                 }
                 results.values = list;
                 results.count = list.size();
@@ -81,11 +78,11 @@ public class AccentInsensitiveFilterArrayAdapter extends RegexFilterArrayAdapter
 
                 ArrayList<String> values;
                 synchronized (mLock) {
-                    values = new ArrayList<String>(accentRemovedList);
+                    values = new ArrayList<>(accentRemovedList);
                 }
 
                 final int count = values.size();
-                final ArrayList<String> newValues = new ArrayList<String>();
+                final ArrayList<String> newValues = new ArrayList<>();
 
                 for (int i = 0; i < count; i++) {
                     final String value = values.get(i);

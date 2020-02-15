@@ -5,6 +5,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,7 +14,7 @@ import chin.com.frdict.database.BaseDictionarySqliteDatabase;
 
 /**
  * Specialized task for searching wiktionary
- *
+ * <p>
  * Created by Chin on 30-Jan-17.
  */
 public class WiktionarySearchWordAsyncTask extends SearchWordAsyncTask {
@@ -40,7 +41,7 @@ public class WiktionarySearchWordAsyncTask extends SearchWordAsyncTask {
             Set<String> secondWords = new HashSet<>();
             while (m.find()) {
                 String tmpWord = m.group(1);
-                if (tmpWord.equals("plural") || tmpWord.equals("feminine")) {
+                if (Objects.equals(tmpWord, "plural") || Objects.equals(tmpWord, "feminine")) {
                     continue;
                 }
                 secondWords.add(tmpWord);

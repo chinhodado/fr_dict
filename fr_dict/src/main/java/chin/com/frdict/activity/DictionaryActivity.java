@@ -1,5 +1,6 @@
 package chin.com.frdict.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,13 +38,18 @@ import chin.com.frdict.tab.DictionaryPagerAdapter;
 import chin.com.frdict.tab.PagerSlidingTabStrip;
 
 public class DictionaryActivity extends FragmentActivity {
-    public static boolean active = false;
-    public static DictionaryActivity INSTANCE;
-    public static WebView webViewWiktionary, webViewOxfordHachette;
-    public AutoCompleteTextView edt;
-    TextToSpeech tts;
+    public static volatile boolean active = false;
 
-    public enum Dictionary{
+    @SuppressLint("StaticFieldLeak")
+    public static DictionaryActivity INSTANCE;
+
+    @SuppressLint("StaticFieldLeak")
+    public static WebView webViewWiktionary, webViewOxfordHachette;
+
+    public AutoCompleteTextView edt;
+    private TextToSpeech tts;
+
+    public enum Dictionary {
         Wiktionary, OxfordHachette
     }
 
@@ -73,6 +79,7 @@ public class DictionaryActivity extends FragmentActivity {
 
                     // hide the keyboard
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    assert imm != null; // Keep Android Studio happy
                     imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
                     return true;
                 }
@@ -87,6 +94,7 @@ public class DictionaryActivity extends FragmentActivity {
 
                 // hide the keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                assert imm != null; // Keep Android Studio happy
                 imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
             }
         });
@@ -103,6 +111,7 @@ public class DictionaryActivity extends FragmentActivity {
 
                 // hide the keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                assert imm != null; // Keep Android Studio happy
                 imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
             }
         });
@@ -119,6 +128,7 @@ public class DictionaryActivity extends FragmentActivity {
 
                 // hide the keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                assert imm != null; // Keep Android Studio happy
                 imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
             }
         });
@@ -214,7 +224,7 @@ public class DictionaryActivity extends FragmentActivity {
             }
         }
 
-        // if the webviews are null, the fragments are not created yet, so we left it to them
+        // If the WebViews are null, the fragments are not created yet, so we left it to them
         // to handle the intent
         if (webViewOxfordHachette != null && webViewWiktionary != null) {
             processIntent();
