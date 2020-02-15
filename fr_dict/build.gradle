@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "chin.com.frdict"
-        minSdkVersion 16
+        minSdkVersion 19
         // If targetSdkVersion >= 29, the path returned by Environment.getExternalStorageDirectory()
         // won't work
         targetSdkVersion 28

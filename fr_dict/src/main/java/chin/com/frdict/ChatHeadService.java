@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.util.List;
+import java.util.Objects;
 
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.SettingsActivity;
@@ -56,10 +57,23 @@ public class ChatHeadService extends Service {
      * Event handler for looking up the word that was just copied into the clipboard
      */
     ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new ClipboardManager.OnPrimaryClipChangedListener() {
+        private static final long THRESHOLD_MS = 50;
+        private long lastChangedTime = 0;
+        private String lastString = "";
         @Override
         public void onPrimaryClipChanged() {
             try {
                 String str = clipMan.getText().toString();
+
+                // Copying text from certain places will trigger multiple events (e.g. Chrome/WebView generates 3 events)
+                // Ignore the duplicated events
+                if (System.currentTimeMillis() - lastChangedTime < THRESHOLD_MS && Objects.equals(lastString, str)) {
+                    return;
+                }
+
+                lastChangedTime = System.currentTimeMillis();
+                lastString = str;
+
                 if (str != null && str.trim().length() > 0) {
                     str = str.trim();
 
@@ -102,7 +116,7 @@ public class ChatHeadService extends Service {
                 }
             }
             catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "frdict: An error occured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "frdict: An error occurred", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
         }
