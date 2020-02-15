@@ -1,3 +1,4 @@
 include ':fr_dict'
+
 include ':common'
-project(':common').projectDir=new File('../Common/common')
+project(':common').projectDir=new File('../android_common/common')
