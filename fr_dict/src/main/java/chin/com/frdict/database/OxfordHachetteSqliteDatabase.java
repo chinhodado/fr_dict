@@ -26,7 +26,10 @@ public class OxfordHachetteSqliteDatabase extends BaseDictionarySqliteDatabase {
             File file2 = new File(dbHelper.getDatabaseAlternatePath());
             if (file.exists() || file2.exists()) {
                 String path = file.exists()? dbHelper.getDatabasePath() : dbHelper.getDatabaseAlternatePath();
-                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE);
+
+                // NOTE: We need OPEN_READWRITE if we want to create FTS tables on the fly, but
+                // opening with OPEN_READWRITE results in an error in new Android versions
+                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
                 dbHelper.createFtsTable();
             }
             else {

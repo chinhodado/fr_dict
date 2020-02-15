@@ -39,7 +39,10 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
                 // Log.i("frdict", "End creating in memory db for " + dbHelper.databaseFileName + ", time: " + (endTime-startTime) + "ms");
                 // dbHelper.db = memDb;
                 String path = file.exists()? dbHelper.getDatabasePath() : dbHelper.getDatabaseAlternatePath();
-                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE);
+
+                // NOTE: We need OPEN_READWRITE if we want to create FTS tables on the fly, but
+                // opening with OPEN_READWRITE results in an error in new Android versions
+                dbHelper.db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
                 dbHelper.createFtsTable();
             }
             else {
