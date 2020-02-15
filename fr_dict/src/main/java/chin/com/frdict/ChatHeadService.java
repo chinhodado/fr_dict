@@ -1,6 +1,8 @@
 package chin.com.frdict;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -8,6 +10,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
@@ -15,6 +18,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.util.List;
@@ -25,6 +29,10 @@ import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
 public class ChatHeadService extends Service {
+
+    private static final String NOTIFICATION_CHANNEL_ID = "chin.com.frdict";
+    public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
+
     public static WindowManager windowManager;
     public static ChatHeadService INSTANCE;
     private ClipboardManager clipMan;
@@ -37,9 +45,7 @@ public class ChatHeadService extends Service {
     // word list
     private AccentInsensitiveFilterArrayAdapter adapter;
 
-    public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
-
-    BroadcastReceiver receiver;
+    private BroadcastReceiver receiver;
 
     // time to create the adapter, in ms, for benchmarking purposes
     private long createAdapterTime;
@@ -212,6 +218,14 @@ public class ChatHeadService extends Service {
 
         registerReceiver(receiver, filter);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startNewStyleForeground(piToggleOpen, piDismiss, piSetting);
+        else {
+            startOldStyleForeground(piToggleOpen, piDismiss, piSetting);
+        }
+    }
+
+    private void startOldStyleForeground(PendingIntent piToggleOpen, PendingIntent piDismiss, PendingIntent piSetting) {
         Notification notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.circle)
                 .setContentTitle("frdict is running")
@@ -221,6 +235,33 @@ public class ChatHeadService extends Service {
                 .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
                 .build();
 
+        startForeground(1337, notification);
+    }
+
+    /**
+     * Need to create a NotificationChannel to be able to run a foreground service in new Android versions
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startNewStyleForeground(PendingIntent piToggleOpen, PendingIntent piDismiss, PendingIntent piSetting){
+        String channelName = "frdict background service";
+        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        Notification notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.drawable.circle)
+                .setContentTitle("frdict is running")
+                .setContentText("Click to show/hide the dictionary")
+                .setContentIntent(piToggleOpen)
+                .addAction(android.R.drawable.ic_menu_preferences, "Settings", piSetting)
+                .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
         startForeground(1337, notification);
     }
 
