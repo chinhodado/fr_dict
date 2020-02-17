@@ -11,6 +11,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import java.util.List;
 
@@ -101,17 +103,11 @@ public class ChatHeadService extends Service {
         }
 
         // the remove and chathead views
-        int type;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            type = LayoutParams.TYPE_APPLICATION_OVERLAY;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean chatheadEnabled = prefs.getBoolean("pref_enableChathead", false);
+        if (chatheadEnabled) {
+            createChathead();
         }
-        else {
-            type = LayoutParams.TYPE_PHONE;
-        }
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        assert inflater != null;
-        addRemoveView(type, inflater);
-        addChatHeadView(type, inflater);
 
         // automatically search word when copy to clipboard
         clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -145,6 +141,20 @@ public class ChatHeadService extends Service {
         else {
             startOldStyleForeground(piToggleOpen, piDismiss, piSetting);
         }
+    }
+
+    private void createChathead() {
+        int type;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            type = LayoutParams.TYPE_APPLICATION_OVERLAY;
+        }
+        else {
+            type = LayoutParams.TYPE_PHONE;
+        }
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        assert inflater != null;
+        addRemoveView(type, inflater);
+        addChatHeadView(type, inflater);
     }
 
     @SuppressLint({"InflateParams", "ClickableViewAccessibility"})

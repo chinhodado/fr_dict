@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference
-        android:key="pref_createAdapterTime"
-        android:selectable="true"
-        android:persistent="false"
-        android:title="Time to create adapter"
-        android:summary=""/>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <SwitchPreferenceCompat
+        app:key="pref_enableChathead"
+        app:title="Enable chathead (requires restart)"
+        app:summary="Required to get clipboard events in Android 10+"
+        app:defaultValue="false"/>
 
     <Preference
-        android:key="pref_version"
-        android:selectable="true"
-        android:persistent="false"
-        android:title="Version"
-        android:summary=""/>
+        app:key="pref_createAdapterTime"
+        app:title="Time to create adapter"
+        app:summary=""/>
 
     <Preference
-        android:key="pref_git"
-        android:selectable="true"
-        android:persistent="false"
-        android:title="git revision"
-        android:summary=""/>
+        app:key="pref_version"
+        app:title="Version"
+        app:summary=""/>
+
+    <Preference
+        app:key="pref_git"
+        app:title="git revision"
+        app:summary=""/>
 </PreferenceScreen>
