@@ -173,8 +173,12 @@ public class ChatHeadService extends Service {
         chatheadParams.gravity = Gravity.TOP | Gravity.START;
         chatheadParams.x = 0;
         chatheadParams.y = 100;
-        chatheadParams.width = 150;
-        chatheadParams.height = 150;
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int chatheadSize = prefs.getInt("pref_chatheadSize", 150);
+
+        chatheadParams.width = chatheadSize;
+        chatheadParams.height = chatheadSize;
         windowManager.addView(chatheadView, chatheadParams);
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
