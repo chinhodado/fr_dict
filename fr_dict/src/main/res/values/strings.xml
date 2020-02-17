@@ -40,4 +40,10 @@
         table { width:100%; }
         ]]>
     </string>
+
+    <string name="pref_enableChathead">pref_enableChathead</string>
+    <string name="pref_chatheadSize">pref_chatheadSize</string>
+    <string name="pref_createAdapterTime">pref_createAdapterTime</string>
+    <string name="pref_version">pref_version</string>
+    <string name="pref_git">pref_git</string>
 </resources>

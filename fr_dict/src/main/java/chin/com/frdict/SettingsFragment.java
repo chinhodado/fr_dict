@@ -1,14 +1,12 @@
 package chin.com.frdict;
 
 import android.os.Bundle;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreferenceCompat;
 
 /**
  * Settings Fragment
@@ -21,7 +19,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
-        Preference chatheadSizePref = findPreference("pref_chatheadSize");
+        Preference chatheadSizePref = findPreference(getString(R.string.pref_chatheadSize));
+        assert chatheadSizePref != null;
         chatheadSizePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -40,13 +39,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        Preference versionPref = findPreference("pref_version");
+        Preference versionPref = findPreference(getString(R.string.pref_version));
+        assert versionPref != null;
         versionPref.setSummary(BuildConfig.VERSION_NAME);
 
-        Preference gitPref = findPreference("pref_git");
+        Preference gitPref = findPreference(getString(R.string.pref_git));
+        assert gitPref != null;
         gitPref.setSummary(BuildConfig.GIT_HASH);
 
-        Preference timeAdapterPref = findPreference("pref_createAdapterTime");
+        Preference timeAdapterPref = findPreference(getString(R.string.pref_createAdapterTime));
+        assert timeAdapterPref != null;
         timeAdapterPref.setSummary(ChatHeadService.INSTANCE.getCreateAdapterTime() + "ms");
     }
 }

@@ -104,7 +104,7 @@ public class ChatHeadService extends Service {
 
         // the remove and chathead views
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean chatheadEnabled = prefs.getBoolean("pref_enableChathead", false);
+        boolean chatheadEnabled = prefs.getBoolean(getString(R.string.pref_enableChathead), false);
         if (chatheadEnabled) {
             createChathead();
         }
@@ -175,7 +175,7 @@ public class ChatHeadService extends Service {
         chatheadParams.y = 100;
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int chatheadSize = prefs.getInt("pref_chatheadSize", 150);
+        int chatheadSize = prefs.getInt(getString(R.string.pref_chatheadSize), 150);
 
         chatheadParams.width = chatheadSize;
         chatheadParams.height = chatheadSize;

@@ -4,31 +4,31 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreferenceCompat
-        app:key="pref_enableChathead"
+        app:key="@string/pref_enableChathead"
         app:title="Enable chathead (requires restart)"
         app:summary="Required to get clipboard events in Android 10+"
         app:defaultValue="false"/>
 
     <SeekBarPreference
-        app:defaultValue="150"
-        app:key="pref_chatheadSize"
-        android:max="200"
+        app:key="@string/pref_chatheadSize"
         app:title="Chathead size"
         app:summary=""
+        app:defaultValue="150"
+        android:max="200"
         app:showSeekBarValue="true"/>
 
     <Preference
-        app:key="pref_createAdapterTime"
+        app:key="@string/pref_createAdapterTime"
         app:title="Time to create adapter"
         app:summary=""/>
 
     <Preference
-        app:key="pref_version"
+        app:key="@string/pref_version"
         app:title="Version"
         app:summary=""/>
 
     <Preference
-        app:key="pref_git"
+        app:key="@string/pref_git"
         app:title="git revision"
         app:summary=""/>
 </PreferenceScreen>
