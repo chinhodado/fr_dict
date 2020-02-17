@@ -12,7 +12,7 @@ import chin.com.frdict.activity.DictionaryActivity;
  * <p>
  * Created by Chin on 05-Nov-16.
  */
-public class FrdictWebViewClient extends WebViewClient {
+public class FrDictWebViewClient extends WebViewClient {
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         Toast.makeText(DictionaryActivity.INSTANCE, description, Toast.LENGTH_SHORT).show();

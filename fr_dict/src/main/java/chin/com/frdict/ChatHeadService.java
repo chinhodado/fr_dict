@@ -33,10 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.util.List;
-import java.util.Objects;
 
-import chin.com.frdict.activity.DictionaryActivity;
-import chin.com.frdict.activity.SettingsActivity;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
@@ -48,9 +45,9 @@ public class ChatHeadService extends Service {
     private static final String NOTIFICATION_CHANNEL_ID = "chin.com.frdict";
     public static final String INTENT_FROM_CLIPBOARD = "FromClipboard";
 
-    private static final String ACTION_TOGGLE_OPEN = "ACTION_TOGGLE_OPEN";
-    private static final String ACTION_DISMISS = "ACTION_DISMISS";
-    private static final String ACTION_SETTING = "ACTION_SETTING";
+    public static final String ACTION_TOGGLE_OPEN = "ACTION_TOGGLE_OPEN";
+    public static final String ACTION_DISMISS = "ACTION_DISMISS";
+    public static final String ACTION_SETTING = "ACTION_SETTING";
 
     @SuppressLint("StaticFieldLeak")
     public static ChatHeadService INSTANCE;
@@ -61,7 +58,7 @@ public class ChatHeadService extends Service {
     private RelativeLayout removeView;
     private ImageView removeImg;
 
-    private ClipboardManager clipMan;
+    private ClipboardManager clipboardManager;
     private static boolean hasClipChangedListener = false;
 
     // dictionaries
@@ -81,71 +78,7 @@ public class ChatHeadService extends Service {
     /**
      * Event handler for looking up the word that was just copied into the clipboard
      */
-    ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new ClipboardManager.OnPrimaryClipChangedListener() {
-        private static final long THRESHOLD_MS = 50;
-        private long lastChangedTime = 0;
-        private String lastString = "";
-        @Override
-        public void onPrimaryClipChanged() {
-            try {
-                String str = clipMan.getText().toString();
-
-                // Copying text from certain places will trigger multiple events (e.g. Chrome/WebView generates 3 events)
-                // Ignore the duplicated events
-                if (System.currentTimeMillis() - lastChangedTime < THRESHOLD_MS && Objects.equals(lastString, str)) {
-                    return;
-                }
-
-                lastChangedTime = System.currentTimeMillis();
-                lastString = str;
-
-                if (str != null && str.trim().length() > 0) {
-                    str = str.trim();
-
-                    // don't react to links
-                    if (str.startsWith("http")) {
-                        return;
-                    }
-
-                    // ignore anything that contains a number
-                    if (str.matches(".*\\d+.*")) {
-                        return;
-                    }
-
-                    // trim , . ; at the end
-                    str = str.replaceAll("([,.;])+$", "");
-
-                    // trim , . ; at the beginning
-                    str = str.replaceAll("^([,.;])+", "");
-
-                    // deal with "words" like t'aime, m'appelle, s'occuper, etc.
-                    char second = str.charAt(1);
-                    if (second == '\'' || second == '’') {
-                        str = str.substring(2);
-                    }
-
-                    str = str.toLowerCase();
-
-                    // execute SearchWordAsyncTask ourselves, or let MyDialog do it, depending whether it is active or not
-                    if (!DictionaryActivity.active) {
-                        // TODO: why do we need to do this?
-                        searchManager.cancelTasks();
-                        Intent intent = new Intent(ChatHeadService.this, DictionaryActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtra(INTENT_FROM_CLIPBOARD, str);
-                        startActivity(intent);
-                    }
-                    else {
-                        searchManager.searchWord(str);
-                        DictionaryActivity.INSTANCE.edt.setText(str);
-                    }
-                }
-            }
-            catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "frdict: An error occurred", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-        }
-    };
+    private ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new FrDictPrimaryClipChangedListener(this);
 
     @Override
     public void onCreate() {
@@ -181,7 +114,7 @@ public class ChatHeadService extends Service {
         addChatHeadView(type, inflater);
 
         // automatically search word when copy to clipboard
-        clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         regPrimaryClipChanged();
 
         // add the notification and actions
@@ -307,7 +240,7 @@ public class ChatHeadService extends Service {
      */
     private void regPrimaryClipChanged() {
         if (!hasClipChangedListener) {
-            clipMan.addPrimaryClipChangedListener(primaryClipChangedListener);
+            clipboardManager.addPrimaryClipChangedListener(primaryClipChangedListener);
             hasClipChangedListener = true;
         }
     }
@@ -317,7 +250,7 @@ public class ChatHeadService extends Service {
      */
     private void unRegPrimaryClipChanged() {
         if (hasClipChangedListener) {
-            clipMan.removePrimaryClipChangedListener(primaryClipChangedListener);
+            clipboardManager.removePrimaryClipChangedListener(primaryClipChangedListener);
             hasClipChangedListener = false;
         }
     }
@@ -493,6 +426,10 @@ public class ChatHeadService extends Service {
         return windowManager;
     }
 
+    public ClipboardManager getClipboardManager() {
+        return clipboardManager;
+    }
+
     @SuppressLint("StaticFieldLeak")
     private class PopulateWordListAsyncTask extends AsyncTask<Void, Void, Void> {
         @Override
@@ -515,53 +452,6 @@ public class ChatHeadService extends Service {
         @Override
         protected void onPostExecute(Void param) {
             Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class FrDictBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            // Just to shut up Android Studio, but can this ever be true?
-            if (action == null) {
-                return;
-            }
-
-            switch (action) {
-                case ACTION_TOGGLE_OPEN:
-                    if (DictionaryActivity.active) {
-                        DictionaryActivity.INSTANCE.moveTaskToBack(true);
-                    } else {
-                        Intent it = new Intent(ChatHeadService.INSTANCE, DictionaryActivity.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        ChatHeadService.INSTANCE.startActivity(it);
-                    }
-                    break;
-                case ACTION_SETTING:
-                    Intent it = new Intent(ChatHeadService.INSTANCE, SettingsActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    ChatHeadService.INSTANCE.startActivity(it);
-
-                    // close the notification drawer
-                    it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-                    context.sendBroadcast(it);
-                    break;
-                case ACTION_DISMISS:
-                    if (DictionaryActivity.INSTANCE != null) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            DictionaryActivity.INSTANCE.finishAndRemoveTask();
-                        } else {
-                            // This will leave the task in the task list
-                            // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
-                            // and I don't own any pre-lollipop device anyway...
-                            DictionaryActivity.INSTANCE.finish();
-                        }
-                    }
-
-                    ChatHeadService.INSTANCE.stopSelf();
-                    break;
-            }
         }
     }
 }

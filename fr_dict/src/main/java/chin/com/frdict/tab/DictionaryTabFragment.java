@@ -14,7 +14,7 @@ import android.webkit.WebViewClient;
 import androidx.fragment.app.Fragment;
 
 import chin.com.frdict.ChatHeadService;
-import chin.com.frdict.FrdictWebViewClient;
+import chin.com.frdict.FrDictWebViewClient;
 import chin.com.frdict.R;
 import chin.com.frdict.Utility;
 import chin.com.frdict.activity.DictionaryActivity;
@@ -62,7 +62,7 @@ public class DictionaryTabFragment extends Fragment {
         }
 
         webview.getSettings().setJavaScriptEnabled(true);
-        WebViewClient client = new FrdictWebViewClient();
+        WebViewClient client = new FrDictWebViewClient();
         webview.setWebViewClient(client);
 
         return view;
