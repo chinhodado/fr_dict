@@ -11,12 +11,22 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -42,8 +52,15 @@ public class ChatHeadService extends Service {
     private static final String ACTION_DISMISS = "ACTION_DISMISS";
     private static final String ACTION_SETTING = "ACTION_SETTING";
 
-    public static WindowManager windowManager;
+    @SuppressLint("StaticFieldLeak")
     public static ChatHeadService INSTANCE;
+
+    private WindowManager windowManager;
+    private Point szWindow = new Point();
+    private RelativeLayout chatheadView;
+    private RelativeLayout removeView;
+    private ImageView removeImg;
+
     private ClipboardManager clipMan;
     private static boolean hasClipChangedListener = false;
 
@@ -150,6 +167,19 @@ public class ChatHeadService extends Service {
             asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
+        // the remove and chathead views
+        int type;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            type = LayoutParams.TYPE_APPLICATION_OVERLAY;
+        }
+        else {
+            type = LayoutParams.TYPE_PHONE;
+        }
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        assert inflater != null;
+        addRemoveView(type, inflater);
+        addChatHeadView(type, inflater);
+
         // automatically search word when copy to clipboard
         clipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         regPrimaryClipChanged();
@@ -176,11 +206,52 @@ public class ChatHeadService extends Service {
         receiver = new FrDictBroadcastReceiver();
         registerReceiver(receiver, filter);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startNewStyleForeground(piToggleOpen, piDismiss, piSetting);
+        }
         else {
             startOldStyleForeground(piToggleOpen, piDismiss, piSetting);
         }
+    }
+
+    @SuppressLint({"InflateParams", "ClickableViewAccessibility"})
+    private void addChatHeadView(int type, LayoutInflater inflater) {
+        // Note: DO NOT add FLAG_NOT_FOCUSABLE here, as we need to be focusable to receive
+        // clipboard events in Android 10+. Also need to specify FLAG_NOT_TOUCH_MODAL,
+        // otherwise the view will capture all touch events even those outside the chathead view
+        int flags = LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+
+        chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
+        windowManager.getDefaultDisplay().getSize(szWindow);
+        LayoutParams chatheadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                type, flags, PixelFormat.TRANSLUCENT);
+        chatheadParams.gravity = Gravity.TOP | Gravity.START;
+        chatheadParams.x = 0;
+        chatheadParams.y = 100;
+        chatheadParams.width = 150;
+        chatheadParams.height = 150;
+        windowManager.addView(chatheadView, chatheadParams);
+
+        chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
+    }
+
+    @SuppressLint("InflateParams")
+    private void addRemoveView(int type, LayoutInflater inflater) {
+        removeView = (RelativeLayout) inflater.inflate(R.layout.remove, null);
+
+        // Note that FLAG_NOT_FOCUSABLE also implies FLAG_NOT_TOUCH_MODAL
+        int flags = LayoutParams.FLAG_NOT_FOCUSABLE |
+                LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+
+        LayoutParams paramRemove = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                type, flags, PixelFormat.TRANSLUCENT);
+        paramRemove.gravity = Gravity.TOP | Gravity.START;
+        removeView.setVisibility(View.GONE);
+        removeImg = removeView.findViewById(R.id.remove_img);
+        windowManager.addView(removeView, paramRemove);
     }
 
     private void startOldStyleForeground(PendingIntent piToggleOpen, PendingIntent piDismiss, PendingIntent piSetting) {
@@ -256,6 +327,14 @@ public class ChatHeadService extends Service {
         super.onDestroy();
         Log.i(Utility.LogTag, "ChatHeadService.onDestroy()");
 
+        if (chatheadView != null) {
+            windowManager.removeView(chatheadView);
+        }
+
+        if (removeView != null) {
+            windowManager.removeView(removeView);
+        }
+
         unRegPrimaryClipChanged();
         unregisterReceiver(receiver);
     }
@@ -286,6 +365,18 @@ public class ChatHeadService extends Service {
         return createAdapterTime;
     }
 
+    public RelativeLayout getChatheadView() {
+        return chatheadView;
+    }
+
+    public RelativeLayout getRemoveView() {
+        return removeView;
+    }
+
+    public ImageView getRemoveImg() {
+        return removeImg;
+    }
+
     private void printDbTableList() {
         List<String> wiktionaryDbTables = wiktionaryDb.getTableList();
         StringBuilder sb = new StringBuilder();
@@ -302,6 +393,104 @@ public class ChatHeadService extends Service {
         }
         sb.setCharAt(sb.length() - 1, ']');
         Log.i("frdict", "oxford hachette db table list: [" + sb.toString());
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        windowManager.getDefaultDisplay().getSize(szWindow);
+        LayoutParams layoutParams = (LayoutParams) chatheadView.getLayoutParams();
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> landscape");
+
+            if (layoutParams.y + (chatheadView.getHeight() + getStatusBarHeight()) > szWindow.y) {
+                layoutParams.y = szWindow.y - (chatheadView.getHeight() + getStatusBarHeight());
+                windowManager.updateViewLayout(chatheadView, layoutParams);
+            }
+
+            if (layoutParams.x != 0 && layoutParams.x < szWindow.x) {
+                resetPosition(szWindow.x);
+            }
+        }
+        else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.d(Utility.LogTag, "ChatHeadService.onConfigurationChanged -> portrait");
+
+            if (layoutParams.x > szWindow.x) {
+                resetPosition(szWindow.x);
+            }
+        }
+    }
+
+    public void resetPosition(int xCordNow) {
+        int w = chatheadView.getWidth();
+
+        if (xCordNow == 0 || xCordNow == szWindow.x - w) {
+            // do nothing
+        }
+        else if (xCordNow + w / 2 <= szWindow.x / 2) {
+            moveToLeft(xCordNow);
+        }
+        else if (xCordNow + w / 2 > szWindow.x / 2) {
+            moveToRight(xCordNow);
+        }
+    }
+
+    public void moveToLeft(int xCordNow) {
+        final int x = xCordNow;
+        new CountDownTimer(500, 5) {
+            LayoutParams mParams = (LayoutParams) chatheadView.getLayoutParams();
+
+            @Override
+            public void onTick(long t) {
+                long step = (500 - t) / 5;
+                mParams.x = (int) (double) bounceValue(step, x);
+                windowManager.updateViewLayout(chatheadView, mParams);
+            }
+
+            @Override
+            public void onFinish() {
+                mParams.x = 0;
+                windowManager.updateViewLayout(chatheadView, mParams);
+            }
+        }.start();
+    }
+
+    public void moveToRight(int xCordNow) {
+        final int x = xCordNow;
+        new CountDownTimer(500, 5) {
+            LayoutParams mParams = (LayoutParams) chatheadView.getLayoutParams();
+
+            @Override
+            public void onTick(long t) {
+                long step = (500 - t) / 5;
+                mParams.x = szWindow.x + (int) (double) bounceValue(step, x) - chatheadView.getWidth();
+                windowManager.updateViewLayout(chatheadView, mParams);
+            }
+
+            @Override
+            public void onFinish() {
+                mParams.x = szWindow.x - chatheadView.getWidth();
+                windowManager.updateViewLayout(chatheadView, mParams);
+            }
+        }.start();
+    }
+
+    private double bounceValue(long step, long scale) {
+        return scale * Math.exp(-0.055 * step) * Math.cos(0.08 * step);
+    }
+
+    public int getStatusBarHeight() {
+        return (int) Math.ceil(25 * getApplicationContext().getResources().getDisplayMetrics().density);
+    }
+
+    public Point getSzWindow() {
+        return szWindow;
+    }
+
+    public WindowManager getWindowManager() {
+        return windowManager;
     }
 
     @SuppressLint("StaticFieldLeak")
