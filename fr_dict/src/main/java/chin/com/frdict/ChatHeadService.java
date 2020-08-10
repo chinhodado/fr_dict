@@ -346,6 +346,13 @@ public class ChatHeadService extends Service {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
+        // Only reset if chat head is enabled
+        if (chatheadView != null) {
+            resetChatHeadPositionOnConfigurationChanged(newConfig);
+        }
+    }
+
+    private void resetChatHeadPositionOnConfigurationChanged(Configuration newConfig) {
         windowManager.getDefaultDisplay().getSize(szWindow);
         LayoutParams layoutParams = (LayoutParams) chatheadView.getLayoutParams();
 
