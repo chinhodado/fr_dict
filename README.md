@@ -13,4 +13,4 @@ Features:
 
  Note:
 
- Put the dictionary files into `<external storage>/frdicts/`
+ Put the dictionary files into `<internal storage>/frdicts/`

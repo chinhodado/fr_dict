@@ -2,6 +2,7 @@ package chin.com.frdict.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -46,6 +47,7 @@ public class WiktionarySqliteDatabase extends BaseDictionarySqliteDatabase {
                 dbHelper.createFtsTable();
             }
             else {
+                Log.w("frdict", dbHelper.databaseFileName + " not found");
                 Toast.makeText(context, dbHelper.databaseFileName + " not found", Toast.LENGTH_LONG).show();
                 System.exit(0);
             }
