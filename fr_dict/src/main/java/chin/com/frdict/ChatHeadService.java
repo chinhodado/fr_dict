@@ -55,7 +55,7 @@ public class ChatHeadService extends Service {
     public static ChatHeadService INSTANCE;
 
     private WindowManager windowManager;
-    private Point szWindow = new Point();
+    private final Point szWindow = new Point();
     private RelativeLayout chatheadView;
     private RelativeLayout removeView;
     private ImageView removeImg;
@@ -80,7 +80,7 @@ public class ChatHeadService extends Service {
     /**
      * Event handler for looking up the word that was just copied into the clipboard
      */
-    private ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new FrDictPrimaryClipChangedListener(this);
+    private final ClipboardManager.OnPrimaryClipChangedListener primaryClipChangedListener = new FrDictPrimaryClipChangedListener(this);
 
     @Override
     public void onCreate() {
@@ -394,7 +394,7 @@ public class ChatHeadService extends Service {
     public void moveToLeft(int xCordNow) {
         final int x = xCordNow;
         new CountDownTimer(500, 5) {
-            LayoutParams mParams = (LayoutParams) chatheadView.getLayoutParams();
+            private final LayoutParams mParams = (LayoutParams) chatheadView.getLayoutParams();
 
             @Override
             public void onTick(long t) {
@@ -414,7 +414,7 @@ public class ChatHeadService extends Service {
     public void moveToRight(int xCordNow) {
         final int x = xCordNow;
         new CountDownTimer(500, 5) {
-            LayoutParams mParams = (LayoutParams) chatheadView.getLayoutParams();
+            private final LayoutParams mParams = (LayoutParams) chatheadView.getLayoutParams();
 
             @Override
             public void onTick(long t) {

@@ -143,8 +143,8 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // fullscreen image
-        final ImageView fullscreenImg = findViewById(R.id.imageView_fullscreen);
-        fullscreenImg.setOnClickListener(new OnClickListener() {
+        final ImageView menuImg = findViewById(R.id.imageView_menu);
+        menuImg.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PopupMenu popup = new PopupMenu(INSTANCE, v);
@@ -154,6 +154,10 @@ public class DictionaryActivity extends FragmentActivity {
                         switch (item.getItemId()) {
                             case R.id.menu_fullscreen:
                                 toggleFullScreen(top);
+                                return true;
+                            case R.id.menu_setting:
+                                Intent intent = new Intent(DictionaryActivity.this, SettingsActivity.class);
+                                startActivity(intent);
                                 return true;
                             default:
                                 return false;
