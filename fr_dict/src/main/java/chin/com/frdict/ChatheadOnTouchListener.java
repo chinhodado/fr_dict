@@ -6,10 +6,13 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 
 import chin.com.frdict.activity.DictionaryActivity;
@@ -27,13 +30,46 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
         this.service = service;
     }
 
-    private Handler longClickHandler = new Handler();
-    private Runnable longClickRunnable = new Runnable() {
+    private final Handler longClickHandler = new Handler();
+    private final Runnable longClickRunnable = new Runnable() {
         @Override
         public void run() {
             isLongClick = true;
             service.getRemoveView().setVisibility(View.VISIBLE);
             onChatheadLongClick();
+        }
+    };
+
+    private final Runnable longClickRunnable2 = new Runnable() {
+        @Override
+        public void run() {
+            PopupMenu popup = new PopupMenu(service, service.getChatheadView());
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.menu_chathead_focus:
+                            service.toggleChatheadFocus();
+                            return true;
+                        case R.id.menu_fullscreen:
+                            if (DictionaryActivity.INSTANCE != null) {
+                                DictionaryActivity.INSTANCE.toggleFullScreen();
+                            }
+                            return true;
+                        case R.id.menu_setting:
+                            service.openSettingActivity();
+                            return true;
+                        case R.id.menu_exit:
+                            service.exit();
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            });
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.menu, popup.getMenu());
+            popup.show();
         }
     };
 
@@ -56,6 +92,7 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
             case MotionEvent.ACTION_DOWN:
                 timeStart = System.currentTimeMillis();
                 longClickHandler.postDelayed(longClickRunnable, 600);
+                longClickHandler.postDelayed(longClickRunnable2, 600);
 
                 removeImgWidth = removeImg.getLayoutParams().width;
                 removeImgHeight = removeImg.getLayoutParams().height;
@@ -129,6 +166,7 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
                 removeImg.getLayoutParams().height = removeImgHeight;
                 removeImg.getLayoutParams().width = removeImgWidth;
                 longClickHandler.removeCallbacks(longClickRunnable);
+                longClickHandler.removeCallbacks(longClickRunnable2);
 
                 if (inBounded) {
                     onChatheadClose();
@@ -171,19 +209,7 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
     }
 
     private void onChatheadClose() {
-        if (DictionaryActivity.INSTANCE != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                DictionaryActivity.INSTANCE.finishAndRemoveTask();
-            }
-            else {
-                // This will leave the task in the task list
-                // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
-                // and I don't own any pre-lollipop device anyway...
-                DictionaryActivity.INSTANCE.finish();
-            }
-        }
-
-        service.stopSelf();
+        service.exit();
     }
 
     private void onChatheadClick() {

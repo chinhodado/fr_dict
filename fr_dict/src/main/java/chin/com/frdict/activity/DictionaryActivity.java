@@ -48,6 +48,7 @@ public class DictionaryActivity extends FragmentActivity {
 
     public AutoCompleteTextView edt;
     private TextToSpeech tts;
+    private View top;
 
     public enum Dictionary {
         Wiktionary, OxfordHachette
@@ -134,7 +135,7 @@ public class DictionaryActivity extends FragmentActivity {
         });
 
         // invisible top section
-        final View top = findViewById(R.id.dialog_top);
+        top = findViewById(R.id.dialog_top);
         top.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,12 +153,17 @@ public class DictionaryActivity extends FragmentActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
+                            case R.id.menu_chathead_focus:
+                                ChatHeadService.INSTANCE.toggleChatheadFocus();
+                                return true;
                             case R.id.menu_fullscreen:
-                                toggleFullScreen(top);
+                                toggleFullScreen();
                                 return true;
                             case R.id.menu_setting:
-                                Intent intent = new Intent(DictionaryActivity.this, SettingsActivity.class);
-                                startActivity(intent);
+                                ChatHeadService.INSTANCE.openSettingActivity();
+                                return true;
+                            case R.id.menu_exit:
+                                ChatHeadService.INSTANCE.exit();
                                 return true;
                             default:
                                 return false;
@@ -204,7 +210,7 @@ public class DictionaryActivity extends FragmentActivity {
         tabs.setIndicatorColor(ContextCompat.getColor(this, R.color.red));
     }
 
-    private void toggleFullScreen(View top) {
+    public void toggleFullScreen() {
         int visibility = top.getVisibility();
         if (visibility == View.GONE) {
             top.setVisibility(View.VISIBLE);

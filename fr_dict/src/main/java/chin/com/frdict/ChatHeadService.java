@@ -36,6 +36,8 @@ import androidx.preference.PreferenceManager;
 
 import java.util.List;
 
+import chin.com.frdict.activity.DictionaryActivity;
+import chin.com.frdict.activity.SettingsActivity;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
@@ -77,6 +79,9 @@ public class ChatHeadService extends Service {
 
     private SearchManager searchManager;
 
+    private boolean chatheadEnabled;
+    private boolean chatheadCanFocus = true;
+
     /**
      * Event handler for looking up the word that was just copied into the clipboard
      */
@@ -104,7 +109,7 @@ public class ChatHeadService extends Service {
 
         // the remove and chathead views
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean chatheadEnabled = prefs.getBoolean(getString(R.string.pref_enableChathead), false);
+        chatheadEnabled = prefs.getBoolean(getString(R.string.pref_enableChathead), false);
         if (chatheadEnabled) {
             createChathead();
         }
@@ -157,14 +162,31 @@ public class ChatHeadService extends Service {
         addChatHeadView(type, inflater);
     }
 
+    public void toggleChatheadFocus() {
+        if (!chatheadEnabled) {
+            return;
+        }
+        boolean canFocus = !chatheadCanFocus;
+        LayoutParams layoutParams = (LayoutParams) chatheadView.getLayoutParams();
+        layoutParams.flags = getChatheadLayoutParamsFlags(canFocus);
+        chatheadView.setLayoutParams(layoutParams);
+        windowManager.removeView(chatheadView);
+        windowManager.addView(chatheadView, layoutParams);
+
+        ImageView chatheadImg = chatheadView.findViewById(R.id.chathead_img);
+        if (!canFocus) {
+            chatheadImg.setImageResource(R.drawable.circle_bw);
+        }
+        else {
+            chatheadImg.setImageResource(R.drawable.circle);
+        }
+
+        chatheadCanFocus = canFocus;
+    }
+
     @SuppressLint({"InflateParams", "ClickableViewAccessibility"})
     private void addChatHeadView(int type, LayoutInflater inflater) {
-        // Note: DO NOT add FLAG_NOT_FOCUSABLE here, as we need to be focusable to receive
-        // clipboard events in Android 10+. Also need to specify FLAG_NOT_TOUCH_MODAL,
-        // otherwise the view will capture all touch events even those outside the chathead view
-        int flags = LayoutParams.FLAG_NOT_TOUCH_MODAL |
-                LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+        int flags = getChatheadLayoutParamsFlags(true);
 
         chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
         windowManager.getDefaultDisplay().getSize(szWindow);
@@ -182,6 +204,31 @@ public class ChatHeadService extends Service {
         windowManager.addView(chatheadView, chatheadParams);
 
         chatheadView.setOnTouchListener(new ChatheadOnTouchListener(this));
+    }
+
+    private int getChatheadLayoutParamsFlags(boolean canFocus) {
+        int flags;
+        if (canFocus) {
+            // No FLAG_NOT_FOCUSABLE here, as we need to be focusable to receive
+            // clipboard events in Android 10+. However, without FLAG_NOT_FOCUSABLE, the keyboard
+            // will not show up when clicking on any text field (in this app and other apps),
+            // and the back button doesn't work.
+            //
+            // Also need to specify FLAG_NOT_TOUCH_MODAL,
+            // otherwise the view will capture all touch events even those outside the chathead view
+            flags = LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                    LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                    LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+        }
+        else {
+            // With FLAG_NOT_FOCUSABLE, we can't receive clipboard event, but keyboard and back
+            // button work normally
+            flags = LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                    LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                    LayoutParams.FLAG_LAYOUT_NO_LIMITS |
+                    LayoutParams.FLAG_NOT_FOCUSABLE;
+        }
+        return flags;
     }
 
     @SuppressLint("InflateParams")
@@ -474,5 +521,26 @@ public class ChatHeadService extends Service {
         protected void onPostExecute(Void param) {
             Toast.makeText(ChatHeadService.this, "AutoCompleteTextView is now ready", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void exit() {
+        if (DictionaryActivity.INSTANCE != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                DictionaryActivity.INSTANCE.finishAndRemoveTask();
+            }
+            else {
+                // This will leave the task in the task list
+                // I'm too lazy to figure out how to do this (remove the task) properly on lower APIs
+                // and I don't own any pre-lollipop device anyway...
+                DictionaryActivity.INSTANCE.finish();
+            }
+        }
+
+        stopSelf();
+    }
+
+    public void openSettingActivity() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 }
