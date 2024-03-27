@@ -42,6 +42,7 @@
     </string>
 
     <string name="pref_enableChathead">pref_enableChathead</string>
+    <string name="pref_chatheadCanFocus">pref_chatheadCanFocus</string>
     <string name="pref_chatheadSize">pref_chatheadSize</string>
     <string name="pref_createAdapterTime">pref_createAdapterTime</string>
     <string name="pref_version">pref_version</string>

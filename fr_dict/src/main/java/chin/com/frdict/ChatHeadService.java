@@ -113,6 +113,9 @@ public class ChatHeadService extends Service {
         chatheadEnabled = prefs.getBoolean(getString(R.string.pref_enableChathead), false);
         if (chatheadEnabled) {
             createChathead();
+            if (chatheadCanFocus != prefs.getBoolean(getString(R.string.pref_chatheadCanFocus), false)) {
+                toggleChatheadFocus();
+            }
         }
 
         // automatically search word when copy to clipboard
@@ -182,6 +185,10 @@ public class ChatHeadService extends Service {
             chatheadImg.setImageResource(R.drawable.circle);
         }
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(getString(R.string.pref_chatheadCanFocus), canFocus);
+        editor.apply();
         chatheadCanFocus = canFocus;
     }
 

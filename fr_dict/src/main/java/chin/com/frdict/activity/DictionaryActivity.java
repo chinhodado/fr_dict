@@ -231,7 +231,7 @@ public class DictionaryActivity extends FragmentActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             String str = bundle.getString(ChatHeadService.INTENT_FROM_CLIPBOARD);
-            if (str != null && !str.equals("")) {
+            if (str != null && !str.isEmpty()) {
                 ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
                 edt.setText(str);
             }
