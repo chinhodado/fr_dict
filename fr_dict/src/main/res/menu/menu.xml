@@ -2,6 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/menu_chathead_focus"
         android:title="Toggle chathead focusable" />
+    <item android:id="@+id/menu_searchhistory"
+        android:title="Search history" />
     <item android:id="@+id/menu_fullscreen"
         android:title="Toggle fullscreen" />
     <item android:id="@+id/menu_setting"

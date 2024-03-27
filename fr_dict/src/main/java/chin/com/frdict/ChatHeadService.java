@@ -38,6 +38,7 @@ import java.util.List;
 
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.SettingsActivity;
+import chin.com.frdict.database.AppDatabase;
 import chin.com.frdict.database.OxfordHachetteSqliteDatabase;
 import chin.com.frdict.database.WiktionarySqliteDatabase;
 
@@ -81,6 +82,7 @@ public class ChatHeadService extends Service {
 
     private boolean chatheadEnabled;
     private boolean chatheadCanFocus = true;
+    private AppDatabase appDatabase;
 
     /**
      * Event handler for looking up the word that was just copied into the clipboard
@@ -258,6 +260,9 @@ public class ChatHeadService extends Service {
                 .addAction(R.drawable.ic_stat_dismiss, "Dismiss", piDismiss)
                 .build();
 
+//        appDatabase = Room.databaseBuilder(getApplicationContext(),
+//                AppDatabase.class, "frdict-database").build();
+
         startForeground(1337, notification);
     }
 
@@ -286,6 +291,10 @@ public class ChatHeadService extends Service {
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();
         startForeground(1337, notification);
+    }
+
+    public AppDatabase getAppDatabase() {
+        return appDatabase;
     }
 
     @Override

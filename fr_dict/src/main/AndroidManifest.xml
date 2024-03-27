@@ -42,6 +42,7 @@
             android:name="chin.com.frdict.activity.SettingsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/Theme.AppCompat"/>
+        <activity android:name=".activity.RecentSearchActivity" />
 
         <service android:name="chin.com.frdict.ChatHeadService" />
     </application>

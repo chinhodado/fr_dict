@@ -10,14 +10,18 @@ def getGitHash = { ->
 }
 
 android {
-    compileSdkVersion 29
+    android {
+        namespace "chin.com.frdict"
+    }
 
     defaultConfig {
         applicationId "chin.com.frdict"
+
         minSdkVersion 19
         // If targetSdkVersion >= 29, the path returned by Environment.getExternalStorageDirectory()
         // won't work
         targetSdkVersion 28
+        compileSdk 34
         versionCode 3
         versionName "2.1"
         buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
@@ -34,12 +38,20 @@ android {
         }
     }
     namespace 'chin.com.frdict'
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.preference:preference:1.2.1'
     implementation project(':common')
+
+    def room_version = "2.6.1"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
 }
 
 static def getDate() {
