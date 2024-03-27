@@ -2,6 +2,7 @@ package chin.com.frdict;
 
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Objects;
@@ -74,8 +75,8 @@ class FrDictPrimaryClipChangedListener implements ClipboardManager.OnPrimaryClip
             }
         }
         catch (Exception e) {
-            Toast.makeText(chatHeadService.getApplicationContext(), "frdict: An error occurred", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            Toast.makeText(chatHeadService.getApplicationContext(), "frdict: An error occurred: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e("frdict", "Error in onPrimaryClipChanged", e);
         }
     }
 }

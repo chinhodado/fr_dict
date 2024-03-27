@@ -66,8 +66,7 @@ public class BaseDictionarySqliteDatabase {
             cursor.close();
         }
         catch (Exception e) {
-            Log.e("frdict", dictName + " - Something went wrong when querying offline database.");
-            e.printStackTrace();
+            Log.e("frdict", dictName + " - Something went wrong when querying offline database.", e);
         }
 
         long end = System.currentTimeMillis();
@@ -99,8 +98,7 @@ public class BaseDictionarySqliteDatabase {
             cursor.close();
         }
         catch (Exception e) {
-            Log.e("frdict", dictName + " - Something went wrong when querying offline database.");
-            e.printStackTrace();
+            Log.e("frdict", dictName + " - Something went wrong when querying offline database.", e);
         }
         long end = System.currentTimeMillis();
         Log.i("frdict", dictName + " - Deep search for \"" + toSearch + "\" took " + (end-start) + "ms");
@@ -163,8 +161,7 @@ public class BaseDictionarySqliteDatabase {
             }
         }
         catch (Exception e) {
-            Log.e("frdict", dictName + " - Error getting word list.");
-            e.printStackTrace();
+            Log.e("frdict", dictName + " - Error getting word list.", e);
         }
         long end = System.currentTimeMillis();
         long duration = (end - start);
@@ -187,8 +184,7 @@ public class BaseDictionarySqliteDatabase {
             }
         }
         catch (Exception e) {
-            Log.e("frdict", dictName + " - Error getting no accent word list.");
-            e.printStackTrace();
+            Log.e("frdict", dictName + " - Error getting no accent word list.", e);
         }
         return wordList;
     }
@@ -215,8 +211,7 @@ public class BaseDictionarySqliteDatabase {
             cursor.close();
         }
         catch (Exception e) {
-            Log.e("frdict", dictName + " - Something went wrong when querying offline database.");
-            e.printStackTrace();
+            Log.e("frdict", dictName + " - Something went wrong when querying offline database.", e);
         }
         return results;
     }
