@@ -72,42 +72,8 @@ public class DictionaryActivity extends FragmentActivity {
         if (adapter != null) {
             edt.setAdapter(adapter);
         }
-        edt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String str = edt.getText().toString();
-                    if (!str.isEmpty()) {
-                        ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
-                    }
-
-                    // hide the keyboard
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    assert imm != null; // Keep Android Studio happy
-                    imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
-                    return true;
-                }
-                return false;
-            }
-        });
-        edt.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String name = (String)parent.getItemAtPosition(position);
-                ChatHeadService.INSTANCE.getSearchManager().searchWord(name);
-
-                // hide the keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                assert imm != null; // Keep Android Studio happy
-                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
-            }
-        });
-
-        // search image
-        final ImageView searchImg = findViewById(R.id.imageView_search);
-        searchImg.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        edt.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 String str = edt.getText().toString();
                 if (!str.isEmpty()) {
                     ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
@@ -117,89 +83,94 @@ public class DictionaryActivity extends FragmentActivity {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 assert imm != null; // Keep Android Studio happy
                 imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
+                return true;
             }
+            return false;
+        });
+        edt.setOnItemClickListener((parent, view, position, id) -> {
+            String name = (String)parent.getItemAtPosition(position);
+            ChatHeadService.INSTANCE.getSearchManager().searchWord(name);
+
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null; // Keep Android Studio happy
+            imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
+        });
+
+        // search image
+        final ImageView searchImg = findViewById(R.id.imageView_search);
+        searchImg.setOnClickListener(v -> {
+            String str = edt.getText().toString();
+            if (!str.isEmpty()) {
+                ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
+            }
+
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null; // Keep Android Studio happy
+            imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
         });
 
         // deep search image
         final ImageView deepSearchImg = findViewById(R.id.imageView_deepSearch);
-        deepSearchImg.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String str = edt.getText().toString();
-                if (!str.isEmpty()) {
-                    ChatHeadService.INSTANCE.getSearchManager().deepSearch(str);
-                }
-
-                // hide the keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                assert imm != null; // Keep Android Studio happy
-                imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
+        deepSearchImg.setOnClickListener(v -> {
+            String str = edt.getText().toString();
+            if (!str.isEmpty()) {
+                ChatHeadService.INSTANCE.getSearchManager().deepSearch(str);
             }
+
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null; // Keep Android Studio happy
+            imm.hideSoftInputFromWindow(edt.getWindowToken(), 0);
         });
 
         // invisible top section
         top = findViewById(R.id.dialog_top);
-        top.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                moveTaskToBack(true);
-            }
-        });
+        top.setOnClickListener(v -> moveTaskToBack(true));
 
         // fullscreen image
         final ImageView menuImg = findViewById(R.id.imageView_menu);
-        menuImg.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(INSTANCE, v);
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.menu_chathead_focus:
-                                ChatHeadService.INSTANCE.toggleChatheadFocus();
-                                return true;
-                            case R.id.menu_searchhistory:
-                                onSearchHistoryMenuItemSelected();
-                                return true;
-                            case R.id.menu_fullscreen:
-                                toggleFullScreen();
-                                return true;
-                            case R.id.menu_setting:
-                                ChatHeadService.INSTANCE.openSettingActivity();
-                                return true;
-                            case R.id.menu_exit:
-                                ChatHeadService.INSTANCE.exit();
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }
-                });
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.menu, popup.getMenu());
-                popup.show();
-            }
+        menuImg.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(INSTANCE, v);
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.menu_chathead_focus:
+                        ChatHeadService.INSTANCE.toggleChatheadFocus();
+                        return true;
+                    case R.id.menu_searchhistory:
+                        onSearchHistoryMenuItemSelected();
+                        return true;
+                    case R.id.menu_fullscreen:
+                        toggleFullScreen();
+                        return true;
+                    case R.id.menu_setting:
+                        ChatHeadService.INSTANCE.openSettingActivity();
+                        return true;
+                    case R.id.menu_exit:
+                        ChatHeadService.INSTANCE.exit();
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.menu, popup.getMenu());
+            popup.show();
         });
 
         // speaker image
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status != TextToSpeech.ERROR) {
-                    // Using FRENCH to just specify the language. If specifically want
-                    // the language as spoken in the country, use FRANCE.
-                    tts.setLanguage(Locale.FRENCH);
-                }
+        tts = new TextToSpeech(this, status -> {
+            if (status != TextToSpeech.ERROR) {
+                // Using FRENCH to just specify the language. If specifically want
+                // the language as spoken in the country, use FRANCE.
+                tts.setLanguage(Locale.FRENCH);
             }
         });
         ImageView speaker = findViewById(R.id.imageView_speaker);
-        speaker.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String toSpeak = edt.getText().toString();
-                tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-            }
+        speaker.setOnClickListener(v -> {
+            String toSpeak = edt.getText().toString();
+            tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
         });
 
         // tabs

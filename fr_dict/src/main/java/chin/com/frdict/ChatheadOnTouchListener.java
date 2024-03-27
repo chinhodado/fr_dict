@@ -43,27 +43,24 @@ public class ChatheadOnTouchListener implements View.OnTouchListener {
         @Override
         public void run() {
             PopupMenu popup = new PopupMenu(service, service.getChatheadView());
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.menu_chathead_focus:
-                            service.toggleChatheadFocus();
-                            return true;
-                        case R.id.menu_fullscreen:
-                            if (DictionaryActivity.INSTANCE != null) {
-                                DictionaryActivity.INSTANCE.toggleFullScreen();
-                            }
-                            return true;
-                        case R.id.menu_setting:
-                            service.openSettingActivity();
-                            return true;
-                        case R.id.menu_exit:
-                            service.exit();
-                            return true;
-                        default:
-                            return false;
-                    }
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.menu_chathead_focus:
+                        service.toggleChatheadFocus();
+                        return true;
+                    case R.id.menu_fullscreen:
+                        if (DictionaryActivity.INSTANCE != null) {
+                            DictionaryActivity.INSTANCE.toggleFullScreen();
+                        }
+                        return true;
+                    case R.id.menu_setting:
+                        service.openSettingActivity();
+                        return true;
+                    case R.id.menu_exit:
+                        service.exit();
+                        return true;
+                    default:
+                        return false;
                 }
             });
             MenuInflater inflater = popup.getMenuInflater();
