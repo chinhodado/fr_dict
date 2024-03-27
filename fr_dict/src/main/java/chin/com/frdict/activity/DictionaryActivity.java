@@ -74,7 +74,7 @@ public class DictionaryActivity extends FragmentActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String str = edt.getText().toString();
-                    if (str.length() > 0) {
+                    if (!str.isEmpty()) {
                         ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
                     }
 
@@ -106,7 +106,7 @@ public class DictionaryActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 String str = edt.getText().toString();
-                if (str.length() > 0) {
+                if (!str.isEmpty()) {
                     ChatHeadService.INSTANCE.getSearchManager().searchWord(str);
                 }
 
@@ -123,7 +123,7 @@ public class DictionaryActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 String str = edt.getText().toString();
-                if (str.length() > 0) {
+                if (!str.isEmpty()) {
                     ChatHeadService.INSTANCE.getSearchManager().deepSearch(str);
                 }
 

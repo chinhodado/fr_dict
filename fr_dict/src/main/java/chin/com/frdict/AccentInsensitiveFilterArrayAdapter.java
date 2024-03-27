@@ -18,7 +18,7 @@ import android.widget.Filter;
 public class AccentInsensitiveFilterArrayAdapter extends RegexFilterArrayAdapter<String> {
 
     private AccentInsensitiveArrayFilter mFilter;
-    private List<String> accentRemovedList;
+    private final List<String> accentRemovedList;
 
     private static final Pattern DIACRITICS_AND_FRIENDS
         = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");

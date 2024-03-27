@@ -11,7 +11,7 @@ import chin.com.frdict.activity.DictionaryActivity;
 
 class FrDictPrimaryClipChangedListener implements ClipboardManager.OnPrimaryClipChangedListener {
     private static final long THRESHOLD_MS = 50;
-    private ChatHeadService chatHeadService;
+    private final ChatHeadService chatHeadService;
     private long lastChangedTime = 0;
     private String lastString = "";
 
@@ -33,7 +33,7 @@ class FrDictPrimaryClipChangedListener implements ClipboardManager.OnPrimaryClip
             lastChangedTime = System.currentTimeMillis();
             lastString = str;
 
-            if (str != null && str.trim().length() > 0) {
+            if (str != null && !str.trim().isEmpty()) {
                 str = str.trim();
 
                 // don't react to links

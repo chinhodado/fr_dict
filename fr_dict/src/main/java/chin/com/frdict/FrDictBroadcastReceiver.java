@@ -3,7 +3,6 @@ package chin.com.frdict;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 
 import chin.com.frdict.activity.DictionaryActivity;
 import chin.com.frdict.activity.SettingsActivity;

@@ -378,7 +378,7 @@ public class ChatHeadService extends Service {
             sb.append(s).append(",");
         }
         sb.setCharAt(sb.length() - 1, ']');
-        Log.i("frdict", "wiktionary db table list: [" + sb.toString());
+        Log.i("frdict", "wiktionary db table list: [" + sb);
 
         List<String> oxfordDbTables = oxfordHachetteDb.getTableList();
         sb = new StringBuilder();
@@ -386,7 +386,7 @@ public class ChatHeadService extends Service {
             sb.append(s).append(",");
         }
         sb.setCharAt(sb.length() - 1, ']');
-        Log.i("frdict", "oxford hachette db table list: [" + sb.toString());
+        Log.i("frdict", "oxford hachette db table list: [" + sb);
     }
 
     @Override

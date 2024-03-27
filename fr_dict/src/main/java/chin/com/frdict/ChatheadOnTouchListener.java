@@ -3,7 +3,6 @@ package chin.com.frdict;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MenuInflater;
