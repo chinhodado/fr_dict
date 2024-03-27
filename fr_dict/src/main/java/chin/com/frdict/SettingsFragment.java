@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -21,22 +22,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference chatheadSizePref = findPreference(getString(R.string.pref_chatheadSize));
         assert chatheadSizePref != null;
-        chatheadSizePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                RelativeLayout chatheadView = ChatHeadService.INSTANCE.getChatheadView();
+        chatheadSizePref.setOnPreferenceChangeListener((preference, newValue) -> {
+            RelativeLayout chatheadView = ChatHeadService.INSTANCE.getChatheadView();
 
-                if (chatheadView != null) {
-                    ViewGroup.LayoutParams layoutParams = chatheadView.getLayoutParams();
-                    layoutParams.width = (int) newValue;
-                    layoutParams.height = (int) newValue;
-                    WindowManager windowManager = ChatHeadService.INSTANCE.getWindowManager();
-                    windowManager.removeView(chatheadView);
-                    windowManager.addView(chatheadView, layoutParams);
-                }
-
-                return true;
+            if (chatheadView != null) {
+                ViewGroup.LayoutParams layoutParams = chatheadView.getLayoutParams();
+                layoutParams.width = (int) newValue;
+                layoutParams.height = (int) newValue;
+                WindowManager windowManager = ChatHeadService.INSTANCE.getWindowManager();
+                windowManager.removeView(chatheadView);
+                windowManager.addView(chatheadView, layoutParams);
             }
+
+            return true;
         });
 
         Preference versionPref = findPreference(getString(R.string.pref_version));
@@ -50,5 +48,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Preference timeAdapterPref = findPreference(getString(R.string.pref_createAdapterTime));
         assert timeAdapterPref != null;
         timeAdapterPref.setSummary(ChatHeadService.INSTANCE.getCreateAdapterTime() + "ms");
+
+        Preference closePref = findPreference(getString(R.string.pref_close));
+        assert closePref != null;
+        closePref.setOnPreferenceClickListener(preference -> {
+            FragmentActivity activity = SettingsFragment.this.getActivity();
+            if (activity != null) {
+                activity.finish();
+            }
+
+            return false;
+        });
     }
 }

@@ -46,6 +46,7 @@
     <string name="pref_createAdapterTime">pref_createAdapterTime</string>
     <string name="pref_version">pref_version</string>
     <string name="pref_git">pref_git</string>
+    <string name="pref_close">pref_close</string>
 
     <string name="shortcut_setting_long">Setting</string>
     <string name="shortcut_setting_short">Setting</string>

@@ -31,4 +31,9 @@
         app:key="@string/pref_git"
         app:title="git revision"
         app:summary=""/>
+
+    <Preference
+        app:key="@string/pref_close"
+        app:title="Close settings"
+        app:summary=""/>
 </PreferenceScreen>
