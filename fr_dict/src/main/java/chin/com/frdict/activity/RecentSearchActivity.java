@@ -4,6 +4,9 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
@@ -15,7 +18,6 @@ import java.util.List;
 import chin.com.frdict.R;
 import chin.com.frdict.database.AppDatabase;
 import chin.com.frdict.database.CountedSearchItem;
-import chin.com.frdict.database.SearchItem;
 
 public class RecentSearchActivity extends ListActivity {
     @Override
@@ -61,5 +63,26 @@ public class RecentSearchActivity extends ListActivity {
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setMessage(itemText);
         alertDialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_recent_search, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.menu_recent_search_close) {
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

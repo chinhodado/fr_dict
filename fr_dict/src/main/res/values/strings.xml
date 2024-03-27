@@ -50,4 +50,5 @@
 
     <string name="shortcut_setting_long">Setting</string>
     <string name="shortcut_setting_short">Setting</string>
+    <string name="close">Close</string>
 </resources>
