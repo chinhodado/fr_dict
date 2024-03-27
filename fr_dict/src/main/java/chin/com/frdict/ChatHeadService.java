@@ -550,6 +550,7 @@ public class ChatHeadService extends Service {
 
     public void openSettingActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 }
