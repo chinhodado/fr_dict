@@ -11,7 +11,6 @@ def getGitHash = { ->
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "chin.com.frdict"
@@ -34,6 +33,7 @@ android {
             versionNameSuffix " build " + getDate()
         }
     }
+    namespace 'chin.com.frdict'
 }
 
 dependencies {
